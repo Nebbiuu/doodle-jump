@@ -29,8 +29,9 @@
         class Model {
             static GRAVITY = 20;
             static JUMP_FORCE = 600;
-            static SPEED = 200;
-            static PLATFORM_PROBABILITY = 0.5; // Probabilité d'avoir une plateforme (50%)
+            static SPEED = 400;
+            static PLATFORM_PROBABILITY = 0.8; // Probabilité d'avoir une plateforme (50%)
+            static MAX_HEIGHT = 0.25 * 600;
 
             constructor() {
                 this._score = 0;
@@ -38,12 +39,12 @@
                 this._gravitySpeed = 0;
                 this._position = { x: 155, y: 300 };
                 this.platforms = this._generatePlatforms();
+
             }
             get position() { return this._position; }
 
             get direction() { return this._direction; }
             set direction(value) { this._direction = value; }
-            get Platforms() { return this.platforms; }
 
 
             BindDisplay(callback) {
@@ -62,7 +63,27 @@
                     }
                 }
 
+                if (this._position.x > 400) {
+                    this._position.x = -50;
+                }
+                if (this._position.x < -50) {
+                    this._position.x = 400;
+                }
+
+                if (this._position.y > 600) {
+                    this._resetGame();
+                }
+                if (this._position.y < Model.MAX_HEIGHT) {
+                    const offset = Model.MAX_HEIGHT - this._position.y;
+                    this._position.y = Model.MAX_HEIGHT;
+                    for (let platform of this.platforms) {
+                        platform.y += offset;
+                    }
+                    this._generateNewPlatforms();
+                }
+
                 this.b_Display(this._position, this._direction, this.platforms);
+
             }
 
             _Jump() {
@@ -72,16 +93,44 @@
             _generatePlatforms() {
                 const platforms = [
                     {
-                        
+                        x: 160, y: 580, width: 57, height: 17, type: 0, speed: 0
                     }
                 ];
+                let traveled = 0;
                 for (let y = 100; y < 600; y += 100) {
                     if (Math.random() < Model.PLATFORM_PROBABILITY) {
                         const x = Math.random() * (400 - 40); // Largeur du canvas - largeur de la plateforme
                         platforms.push({ x: x, y: y, width: 57, height: 17 });
+                        traveled = 0;
+                    } else if (traveled > 10) {
+                        const x = Math.random() * (400 - 40); // Largeur du canvas - largeur de la plateforme
+                        platforms.push({ x: x, y: y, width: 57, height: 17 });
+                        traveled = 0;
                     }
+                    traveled += 50;
+
+
+
                 }
                 return platforms;
+            }
+
+            _generateNewPlatforms() {
+                // Supprimer les plateformes qui sont sorties de l'écran
+                this.platforms = this.platforms.filter(platform => platform.y < 600);
+
+                // Générer de nouvelles plateformes en haut de l'écran
+                if (Math.random() < Model.PLATFORM_PROBABILITY) {
+                    const x = Math.random() * (400 - 40); // Largeur du canvas - largeur de la plateforme
+                    this.platforms.push({ x: x, y: 600, width: 57, height: 17 });
+                }
+            }
+            _resetGame() {
+                this._score = 0;
+                this._direction = 0;
+                this._gravitySpeed = 0;
+                this._position = { x: 155, y: 300 };
+                this.platforms = this._generatePlatforms();
             }
         }
 
@@ -169,11 +218,10 @@
                 this.ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
 
                 if (this.platformImageLoaded) {
-                    this.ctx.drawImage(this.platformImage, 1, 1, 57, 17, (this._canvas.width - 70) / 2, this._canvas.height - 20, 57, 17);
 
                     const platforms = this.b_GetPlatforms();
                     for (let platform of platforms) {
-                        this.ctx.drawImage(this.platformImage,1,1,57,17, platform.x, platform.y, platform.width, platform.height);
+                        this.ctx.drawImage(this.platformImage, 1, 1, 57, 17, platform.x, platform.y, platform.width, platform.height);
                     }
                 }
 
