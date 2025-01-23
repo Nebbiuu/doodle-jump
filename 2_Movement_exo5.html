@@ -12,18 +12,59 @@
             align-items: center;
             height: 100vh;
             margin: 0;
+            position: relative;
         }
 
         canvas {
             border: 1px solid red;
             background: url('/bck@2x.png');
             background-size: cover;
+            position: relative;
+        }
+
+        #score {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 24px;
+            color: red;
+            z-index: 1;
+        }
+
+        #final-score {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 48px;
+            color: red;
+            display: none;
+            text-align: center;
+        }
+
+        #restart-button {
+            display: none;
+            position: absolute;
+            top: 60%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+            padding: 10px 20px;
+            background-color: red;
+            color: white;
+            border: none;
+            cursor: pointer;
         }
     </style>
 </head>
 
 <body>
-    <canvas id="my_canvas" width="400" height="600"></canvas>
+    <div style="position: relative;">
+        <canvas id="my_canvas" width="400" height="600"></canvas>
+        <div id="score">Score: 0</div>
+        <div id="final-score">Final Score: 0</div>
+        <button id="restart-button">Restart</button>
+    </div>
 
     <script>
         class Model {
@@ -45,7 +86,7 @@
 
             get direction() { return this._direction; }
             set direction(value) { this._direction = value; }
-
+            get score() { return this._score; }
 
             BindDisplay(callback) {
                 this.b_Display = callback;
@@ -56,10 +97,22 @@
                 this._position.y += this._gravitySpeed / fps;
                 this._position.x += this._direction * Model.SPEED / fps;
 
-                // Vérifier les collisions avec chaque plateforme
-                for (let platform of this.platforms) {
+                for (let i = 0; i < this.platforms.length; i++) {
+                    let platform = this.platforms[i];
+                    if (platform.type === 1) {
+                        platform.x += platform.speed / fps;
+                        if (platform.x <= 0 || platform.x + platform.width >= 400) {
+                            platform.speed = -platform.speed;
+                        }
+                        console.log(`Moving platform at (${platform.x}, ${platform.y}) with speed ${platform.speed}`);
+                    }
+
                     if (this._position.y + 70 >= platform.y && this._position.y + 70 <= platform.y + platform.height && this._position.x + 50 > platform.x && this._position.x < platform.x + platform.width && this._gravitySpeed > 0) {
                         this._Jump();
+                        if (platform.type === 2) {
+                            this.platforms.splice(i, 1);
+                            i--;
+                        }
                     }
                 }
 
@@ -71,18 +124,19 @@
                 }
 
                 if (this._position.y > 600) {
-                    this._resetGame();
+                    this._endGame();
                 }
                 if (this._position.y < Model.MAX_HEIGHT) {
                     const offset = Model.MAX_HEIGHT - this._position.y;
                     this._position.y = Model.MAX_HEIGHT;
+                    this._score += offset;
                     for (let platform of this.platforms) {
                         platform.y += offset;
                     }
-                    this._generateNewPlatforms();
+                    this._generateNewPlatforms(offset);
                 }
 
-                this.b_Display(this._position, this._direction, this.platforms);
+                this.b_Display(this._position, this._direction, this.platforms, this._score);
 
             }
 
@@ -100,11 +154,11 @@
                 for (let y = 100; y < 600; y += 100) {
                     if (Math.random() < Model.PLATFORM_PROBABILITY) {
                         const x = Math.random() * (400 - 40); // Largeur du canvas - largeur de la plateforme
-                        platforms.push({ x: x, y: y, width: 57, height: 17 });
+                        platforms.push({ x: x, y: y, width: 57, height: 17, type: 0, speed: 0 });
                         traveled = 0;
                     } else if (traveled > 10) {
                         const x = Math.random() * (400 - 40); // Largeur du canvas - largeur de la plateforme
-                        platforms.push({ x: x, y: y, width: 57, height: 17 });
+                        platforms.push({ x: x, y: y, width: 57, height: 17, type: 0, speed: 0 });
                         traveled = 0;
                     }
                     traveled += 50;
@@ -115,22 +169,67 @@
                 return platforms;
             }
 
-            _generateNewPlatforms() {
-                // Supprimer les plateformes qui sont sorties de l'écran
-                this.platforms = this.platforms.filter(platform => platform.y < 600);
+            _generateNewPlatforms(offset) {
+                const newPlatforms = [];
+                let highestPlatformY = 600;
 
-                // Générer de nouvelles plateformes en haut de l'écran
-                if (Math.random() < Model.PLATFORM_PROBABILITY) {
-                    const x = Math.random() * (400 - 40); // Largeur du canvas - largeur de la plateforme
-                    this.platforms.push({ x: x, y: 600, width: 57, height: 17 });
+                for (let platform of this.platforms) {
+                    if (platform.y < 600) {
+                        newPlatforms.push(platform);
+                        if (platform.y < highestPlatformY) {
+                            highestPlatformY = platform.y;
+                        }
+                    }
                 }
+
+                const movingPlatformProbability = Math.min(0.05 + this._score / 10000, 1);
+                const disappearingPlatformProbability = Math.min(0.02 + this._score / 10000, 1);
+                const movingPlatformCount = Math.min(Math.floor(this._score / 1000), newPlatforms.length);
+                if (movingPlatformCount != 0) {
+                    console.log(`Generating ${movingPlatformCount} moving platforms`);
+                }
+
+                while (newPlatforms.length < this.platforms.length) {
+                    const x = Math.random() * (400 - 40);
+                    const y = highestPlatformY - 100;
+                    let type = 0;
+                    let speed = 0;
+
+                    if (Math.random() < movingPlatformProbability) {
+                        type = 1;
+                        speed = 100;
+                    } else if (Math.random() < disappearingPlatformProbability) {
+                        type = 2;
+                    }
+
+                    newPlatforms.push({ x: x, y: y, width: 57, height: 17, type: type, speed: speed });
+                    highestPlatformY -= 100;
+                    if (type === 1) {
+                        console.log(`Created moving platform at (${x}, ${y}) with speed ${speed}`);
+                    } else if (type === 2) {
+                        console.log(`Created disappearing platform at (${x}, ${y})`);
+                    }
+                }
+
+                this.platforms = newPlatforms;
             }
+
             _resetGame() {
                 this._score = 0;
                 this._direction = 0;
                 this._gravitySpeed = 0;
                 this._position = { x: 155, y: 300 };
                 this.platforms = this._generatePlatforms();
+            }
+
+            _endGame() {
+                console.log("Game Over");
+                this._score = Math.floor(this._score);
+                this._direction = 0;
+                this._gravitySpeed = 0;
+                this._position = { x: -100, y: -100 }; // Move doodler off-screen
+                this.platforms = [];
+                this.b_Display(this._position, this._direction, this.platforms, this._score, true);
             }
         }
 
@@ -209,25 +308,30 @@
 
             }
 
-            Display(position, direction) {
-                let x = position.x;
-                let y = position.y;
-
-                // console.log(`Position: (${x}, ${y}), Direction: ${direction}`);
-
+            Display(position, direction, platforms, score, gameOver = false) {
+                console.log("Display called with gameOver:", gameOver);
                 this.ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
 
-                if (this.platformImageLoaded) {
+                if (gameOver) {
+                    document.getElementById('final-score').innerText = `Final Score: ${score}`;
+                    document.getElementById('final-score').style.display = 'block';
+                    document.getElementById('restart-button').style.display = 'block';
+                    document.getElementById('score').style.display = 'none';
+                    return;
+                }
 
-                    const platforms = this.b_GetPlatforms();
+                if (this.platformImageLoaded) {
                     for (let platform of platforms) {
-                        this.ctx.drawImage(this.platformImage, 1, 1, 57, 17, platform.x, platform.y, platform.width, platform.height);
+                        if (platform.type === 1) {
+                            this.ctx.drawImage(this.platformImage, 1, 19, 57, 17, platform.x, platform.y, platform.width, platform.height);
+                        } else if (platform.type === 2) {
+                            this.ctx.drawImage(this.platformImage, 1, 55, 57, 17, platform.x, platform.y, platform.width, platform.height);
+                        } else {
+                            this.ctx.drawImage(this.platformImage, 1, 1, 57, 17, platform.x, platform.y, platform.width, platform.height);
+                        }
                     }
                 }
 
-
-
-                // Dessiner le doodler seulement si les images sont chargées.
                 if (direction === -1) {
                     this.lastDirection = -1;
                 } else if (direction === 1) {
@@ -235,11 +339,12 @@
                 }
 
                 if (this.lastDirection == 1) {
-                    this.ctx.drawImage(this.doodlerRight, x, y, 70, 70);
-
+                    this.ctx.drawImage(this.doodlerRight, position.x, position.y, 70, 70);
                 } else {
-                    this.ctx.drawImage(this.doodlerLeft, x, y, 70, 70);
+                    this.ctx.drawImage(this.doodlerLeft, position.x, position.y, 70, 70);
                 }
+
+                document.getElementById('score').innerText = `Score: ${Math.floor(score)}`;
             }
 
         }
@@ -260,8 +365,8 @@
                 this._view.BindGetPlatforms(this.GetPlatforms.bind(this));
             }
 
-            Display(position, direction) {
-                this._view.Display(position, direction);
+            Display(position, direction, platforms, score) {
+                this._view.Display(position, direction, platforms, score);
             }
 
             SetDirection(newDirection) {
@@ -288,12 +393,27 @@
                     this._lag -= this._frameDuration;
                 }
 
-                requestAnimationFrame(this.Update.bind(this)); // La fonction de rappel est généralement appelée 60 fois par seconde.
+                if (this._model.platforms.length > 0) {
+                    requestAnimationFrame(this.Update.bind(this));
+                }
+            }
+
+            Restart() {
+                document.getElementById('final-score').style.display = 'none';
+                document.getElementById('restart-button').style.display = 'none';
+                document.getElementById('score').style.display = 'block';
+                this._model = new Model();
+                this._model.BindDisplay(this.Display.bind(this));
+                this.Update();
             }
         }
 
         const app = new Controller(new Model(), new View());
         app.Update();
+
+        document.getElementById('restart-button').addEventListener('click', () => {
+            app.Restart();
+        });
 
     </script>
 
