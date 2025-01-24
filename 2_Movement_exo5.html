@@ -107,11 +107,11 @@
                         //console.log(`Moving platform at (${platform.x}, ${platform.y}) with speed ${platform.speed}`);
                     }
                     if (
-                        this._position.y + 70 >= platform.y && 
-                        this._position.y + 70 <= platform.y + platform.height && 
-                        this._position.x + 40 > platform.x &&  
-                        this._position.x < platform.x + 40 &&  
-                        this._gravitySpeed > 0 
+                        this._position.y + 70 >= platform.y &&
+                        this._position.y + 70 <= platform.y + platform.height &&
+                        this._position.x + 50 > platform.x &&
+                        this._position.x < platform.x + 40 &&
+                        this._gravitySpeed > 0
                     ) {
                         this._Jump();
                         if (platform.type === 2) {
@@ -155,33 +155,61 @@
                         x: 160, y: 580, width: 57, height: 17, type: 0, speed: 0
                     }
                 ];
-                // let traveled = 0;
-                // for (let y = 100; y < 600; y += 100) {
-                //     if (Math.random() < Model.PLATFORM_PROBABILITY) {
-                //         const x = Math.random() * (400 - 40); // Largeur du canvas - largeur de la plateforme
-                //         platforms.push({ x: x, y: y, width: 57, height: 17, type: 0, speed: 0 });
-                //         traveled = 0;
-                //     } else if (traveled > 10) {
-                //         const x = Math.random() * (400 - 40); // Largeur du canvas - largeur de la plateforme
-                //         platforms.push({ x: x, y: y, width: 57, height: 17, type: 0, speed: 0 });
-                //         traveled = 0;
-                //     }
-                //     traveled += 50;
-                // }
 
                 let posY = 550;
-                for (let i = 0; i < 10; i++) {
+
+                // Calcul de l'espacement initial (entre 30 et 100 en fonction du score initial de 0)
+                let platformSpacing = Math.min(100, Math.max(30, this._score / 100));
+
+                let normalPlatformProbability = 0;
+                let movingPlatformProbability = 0;
+                let disappearingPlatformProbability = 0;
+                let deplacablePlatformProbability = 0;
+
+                // Probabilités des types de plateformes en fonction du score
+                if (this._score <= 5000) {
+                    normalPlatformProbability = 0.80;
+                    movingPlatformProbability = 0.15;
+                    disappearingPlatformProbability = 0.05;
+                } else if (this._score <= 10000) {
+                    normalPlatformProbability = 0.70;
+                    movingPlatformProbability = 0.20;
+                    disappearingPlatformProbability = 0.10;
+                } else if (this._score <= 15000) {
+                    normalPlatformProbability = 0.60;
+                    movingPlatformProbability = 0.25;
+                    disappearingPlatformProbability = 0.10;
+                    deplacablePlatformProbability = 0.05;
+                } else {
+                    normalPlatformProbability = 0.50;
+                    movingPlatformProbability = 0.30;
+                    disappearingPlatformProbability = 0.15;
+                    deplacablePlatformProbability = 0.05;
+                }
+
+                for (let i = 0; i < 25; i++) {
                     let x = Math.random() * (400 - 57);
-                    platforms.push({ x: x, y: posY, width: 57, height: 17, type: 0, speed: 0 });
-                    posY -= 100; // Espacement vertical entre les plateformes
+                    let type = 0;
+                    let speed = 0;
+
+                    // Génération aléatoire du type de plateforme en fonction des probabilités
+                    if (Math.random() < movingPlatformProbability) {
+                        type = 1;
+                        speed = 100;
+                    } else if (Math.random() < disappearingPlatformProbability) {
+                        type = 2;
+                    }
+
+                    platforms.push({ x: x, y: posY, width: 57, height: 17, type: type, speed: speed });
+
+                    posY -= platformSpacing;  // Utilisation de l'espacement dynamique
                 }
 
                 return platforms;
             }
 
-            _generateNewPlatforms(offset) {
-                console.log(this.platforms.length);
 
+            _generateNewPlatforms(offset) {
                 const newPlatforms = [];
                 let highestPlatformY = 600;
 
@@ -224,7 +252,7 @@
                     deplacablePlatformProbability = 0.05;
                 }
 
-                while (newPlatforms.length < 20) {
+                while (newPlatforms.length < 25) {
                     const x = Math.random() * (400 - 57);
                     const y = highestPlatformY - platformSpacing;  // Utilisation de l'espacement calculé pour Y
                     let type = 0;
