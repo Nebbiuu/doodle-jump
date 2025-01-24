@@ -67,59 +67,25 @@
     </div>
 
     <script>
-        class Model {
+        class Player {
             static GRAVITY = 20;
             static JUMP_FORCE = 600;
             static SPEED = 400;
-            static PLATFORM_PROBABILITY = 0.8; // Probabilité d'avoir une plateforme (50%)
-            static MAX_HEIGHT = 0.25 * 600;
 
             constructor() {
-                this._score = 0;
+                this._position = { x: 155, y: 500 };
                 this._direction = 0;
                 this._gravitySpeed = 0;
-                this._position = { x: 155, y: 500 };
-                this.platforms = this._generatePlatforms();
-                this._gameOver = false;
             }
-            get position() { return this._position; }
 
+            get position() { return this._position; }
             get direction() { return this._direction; }
             set direction(value) { this._direction = value; }
-            get score() { return this._score; }
 
-            BindDisplay(callback) {
-                this.b_Display = callback;
-            }
-
-            Move(fps) {
-                this._gravitySpeed += Model.GRAVITY;
+            move(fps) {
+                this._gravitySpeed += Player.GRAVITY;
                 this._position.y += this._gravitySpeed / fps;
-                this._position.x += this._direction * Model.SPEED / fps;
-
-                for (let i = 0; i < this.platforms.length; i++) {
-                    let platform = this.platforms[i];
-                    if (platform.type === 1) {
-                        platform.x += platform.speed / fps;
-                        if (platform.x <= 0 || platform.x + platform.width >= 400) {
-                            platform.speed = -platform.speed;
-                        }
-                        //console.log(`Moving platform at (${platform.x}, ${platform.y}) with speed ${platform.speed}`);
-                    }
-                    if (
-                        this._position.y + 70 >= platform.y &&
-                        this._position.y + 70 <= platform.y + platform.height &&
-                        this._position.x + 50 > platform.x &&
-                        this._position.x < platform.x + 40 &&
-                        this._gravitySpeed > 0
-                    ) {
-                        this._Jump();
-                        if (platform.type === 2) {
-                            this.platforms.splice(i, 1);
-                            i--;
-                        }
-                    }
-                }
+                this._position.x += this._direction * Player.SPEED / fps;
 
                 if (this._position.x > 400) {
                     this._position.x = -50;
@@ -127,89 +93,79 @@
                 if (this._position.x < -50) {
                     this._position.x = 400;
                 }
-
-                if (this._position.y > 600) {
-                    this._endGame();
-                }
-                if (this._position.y < Model.MAX_HEIGHT && this._gameOver == false) {
-                    const offset = Model.MAX_HEIGHT - this._position.y;
-                    this._position.y = Model.MAX_HEIGHT;
-                    this._score += offset;
-                    for (let platform of this.platforms) {
-                        platform.y += offset;
-                    }
-                    this._generateNewPlatforms(offset);
-                }
-
-                this.b_Display(this._position, this._direction, this.platforms, this._score, this._g);
-
             }
 
-            _Jump() {
-                this._gravitySpeed = - Model.JUMP_FORCE;
+            jump() {
+                this._gravitySpeed = -Player.JUMP_FORCE;
             }
 
-            _generatePlatforms() {
+            reset() {
+                this._position = { x: 155, y: 300 };
+                this._direction = 0;
+                this._gravitySpeed = 0;
+            }
+        }
+
+        class PlatformManager {
+            static MAX_HEIGHT = 0.25 * 600;
+
+            constructor(score) {
+                this.platforms = this._generatePlatforms(score);
+            }
+
+            _generatePlatforms(score) {
                 let platforms = [
-                    {
-                        x: 160, y: 580, width: 57, height: 17, type: 0, speed: 0
-                    }
+                    { x: 160, y: 580, width: 57, height: 17, type: 0, speed: 0 }
                 ];
 
                 let posY = 550;
+                let platformSpacing = Math.min(100, Math.max(30, score / 100));
 
-                // Calcul de l'espacement initial (entre 30 et 100 en fonction du score initial de 0)
-                let platformSpacing = Math.min(100, Math.max(30, this._score / 100));
-
-                let normalPlatformProbability = 0;
-                let movingPlatformProbability = 0;
-                let disappearingPlatformProbability = 0;
-                let deplacablePlatformProbability = 0;
-
-                // Probabilités des types de plateformes en fonction du score
-                if (this._score <= 5000) {
-                    normalPlatformProbability = 0.80;
-                    movingPlatformProbability = 0.15;
-                    disappearingPlatformProbability = 0.05;
-                } else if (this._score <= 10000) {
-                    normalPlatformProbability = 0.70;
-                    movingPlatformProbability = 0.20;
-                    disappearingPlatformProbability = 0.10;
-                } else if (this._score <= 15000) {
-                    normalPlatformProbability = 0.60;
-                    movingPlatformProbability = 0.25;
-                    disappearingPlatformProbability = 0.10;
-                    deplacablePlatformProbability = 0.05;
-                } else {
-                    normalPlatformProbability = 0.50;
-                    movingPlatformProbability = 0.30;
-                    disappearingPlatformProbability = 0.15;
-                    deplacablePlatformProbability = 0.05;
-                }
+                let probabilities = this._getPlatformProbabilities(score);
 
                 for (let i = 0; i < 25; i++) {
                     let x = Math.random() * (400 - 57);
                     let type = 0;
                     let speed = 0;
 
-                    // Génération aléatoire du type de plateforme en fonction des probabilités
-                    if (Math.random() < movingPlatformProbability) {
+                    if (Math.random() < probabilities.moving) {
                         type = 1;
                         speed = 100;
-                    } else if (Math.random() < disappearingPlatformProbability) {
+                    } else if (Math.random() < probabilities.disappearing) {
                         type = 2;
                     }
 
                     platforms.push({ x: x, y: posY, width: 57, height: 17, type: type, speed: speed });
-
-                    posY -= platformSpacing;  // Utilisation de l'espacement dynamique
+                    posY -= platformSpacing;
                 }
 
                 return platforms;
             }
 
+            _getPlatformProbabilities(score) {
+                if (score <= 5000) {
+                    return { normal: 0.80, moving: 0.15, disappearing: 0.05 };
+                } else if (score <= 10000) {
+                    return { normal: 0.70, moving: 0.20, disappearing: 0.10 };
+                } else if (score <= 15000) {
+                    return { normal: 0.60, moving: 0.25, disappearing: 0.10, deplacable: 0.05 };
+                } else {
+                    return { normal: 0.50, moving: 0.30, disappearing: 0.15, deplacable: 0.05 };
+                }
+            }
 
-            _generateNewPlatforms(offset) {
+            movePlatforms(fps) {
+                for (let platform of this.platforms) {
+                    if (platform.type === 1) {
+                        platform.x += platform.speed / fps;
+                        if (platform.x <= 0 || platform.x + platform.width >= 400) {
+                            platform.speed = -platform.speed;
+                        }
+                    }
+                }
+            }
+
+            _removeOldPlatforms() {
                 const newPlatforms = [];
                 let highestPlatformY = 600;
 
@@ -222,80 +178,175 @@
                     }
                 }
 
-                // Calculer l'écart entre les plateformes en fonction du score.
-                // L'écart commence à 30 pour un score de 0 et atteint 100 pour un score de 10000.
-                let platformSpacing = Math.min(100, Math.max(30, this._score / 100));  // Ecart entre 30 et 100
+                return { newPlatforms, highestPlatformY };
+            }
 
-                let normalPlatformProbability = 0;
-                let movingPlatformProbability = 0;
-                let disappearingPlatformProbability = 0;
-                let deplacablePlatformProbability = 0;
-
-                // Probabilités des types de plateformes en fonction du score
-                if (this._score <= 5000) {
-                    normalPlatformProbability = 0.80;
-                    movingPlatformProbability = 0.15;
-                    disappearingPlatformProbability = 0.05;
-                } else if (this._score <= 10000) {
-                    normalPlatformProbability = 0.70;
-                    movingPlatformProbability = 0.20;
-                    disappearingPlatformProbability = 0.10;
-                } else if (this._score <= 15000) {
-                    normalPlatformProbability = 0.60;
-                    movingPlatformProbability = 0.25;
-                    disappearingPlatformProbability = 0.10;
-                    deplacablePlatformProbability = 0.05;
-                } else {
-                    normalPlatformProbability = 0.50;
-                    movingPlatformProbability = 0.30;
-                    disappearingPlatformProbability = 0.15;
-                    deplacablePlatformProbability = 0.05;
-                }
+            _addNewPlatforms(newPlatforms, highestPlatformY, score) {
+                let platformSpacing = Math.min(100, Math.max(30, score / 100));
+                let probabilities = this._getPlatformProbabilities(score);
 
                 while (newPlatforms.length < 25) {
                     const x = Math.random() * (400 - 57);
-                    const y = highestPlatformY - platformSpacing;  // Utilisation de l'espacement calculé pour Y
+                    const y = highestPlatformY - platformSpacing;
                     let type = 0;
                     let speed = 0;
 
-                    if (Math.random() < movingPlatformProbability) {
+                    if (Math.random() < probabilities.moving) {
                         type = 1;
                         speed = 100;
-                    } else if (Math.random() < disappearingPlatformProbability) {
+                    } else if (Math.random() < probabilities.disappearing) {
                         type = 2;
                     }
 
                     newPlatforms.push({ x: x, y: y, width: 57, height: 17, type: type, speed: speed });
-                    highestPlatformY -= platformSpacing;  // Décalage du Y selon l'espacement
-                    if (type === 1) {
-                        // console.log(`Created moving platform at (${x}, ${y}) with speed ${speed}`);
-                    } else if (type === 2) {
-                        // console.log(`Created disappearing platform at (${x}, ${y})`);
-                    }
+                    highestPlatformY -= platformSpacing;
                 }
 
                 this.platforms = newPlatforms;
             }
 
+            generateNewPlatforms(offset, score) {
+                const { newPlatforms, highestPlatformY } = this._removeOldPlatforms();
+                this._addNewPlatforms(newPlatforms, highestPlatformY, score);
+            }
 
+            reset(score) {
+                this.platforms = this._generatePlatforms(score);
+            }
+        }
+
+        class CollisionManager {
+            static checkPlayerPlatformCollision(player, platforms) {
+                for (let i = 0; i < platforms.length; i++) {
+                    let platform = platforms[i];
+                    if (
+                        player.position.y + 70 >= platform.y &&
+                        player.position.y + 70 <= platform.y + platform.height &&
+                        player.position.x + 50 > platform.x &&
+                        player.position.x < platform.x + 40 &&
+                        player._gravitySpeed > 0
+                    ) {
+                        player.jump();
+                        if (platform.type === 2) {
+                            platforms.splice(i, 1);
+                            i--;
+                        }
+                    }
+                }
+            }
+        }
+
+        class ScoreManager {
+            constructor() {
+                this._score = 0;
+            }
+
+            get score() {
+                return this._score;
+            }
+
+            increment(offset) {
+                this._score += offset;
+            }
+
+            reset() {
+                this._score = 0;
+            }
+
+            displayScore() {
+                document.getElementById('score').innerText = `Score: ${Math.floor(this._score)}`;
+            }
+
+            displayFinalScore() {
+                document.getElementById('final-score').innerText = `Final Score: ${Math.floor(this._score)}`;
+                document.getElementById('final-score').style.display = 'block';
+                document.getElementById('restart-button').style.display = 'block';
+                document.getElementById('score').style.display = 'none';
+            }
+
+            hideFinalScore() {
+                document.getElementById('final-score').style.display = 'none';
+                document.getElementById('restart-button').style.display = 'none';
+                document.getElementById('score').style.display = 'block';
+            }
+        }
+
+        class Model {
+            constructor() {
+                this._score = 0;
+                this._player = new Player();
+                this._platformManager = new PlatformManager(this._score);
+                this._scoreManager = new ScoreManager();
+                this._gameOver = false;
+            }
+
+            get position() { return this._player.position; }
+            get direction() { return this._player.direction; }
+            set direction(value) { this._player.direction = value; }
+            get score() { return this._scoreManager.score; }
+
+            BindDisplay(callback) {
+                this.b_Display = callback;
+            }
+
+            Move(fps) {
+                this._player.move(fps);
+                this._platformManager.movePlatforms(fps);
+                CollisionManager.checkPlayerPlatformCollision(this._player, this._platformManager.platforms);
+
+                if (this._player.position.y > 600) {
+                    this._endGame();
+                }
+                if (this._player.position.y < PlatformManager.MAX_HEIGHT && !this._gameOver) {
+                    const offset = PlatformManager.MAX_HEIGHT - this._player.position.y;
+                    this._player.position.y = PlatformManager.MAX_HEIGHT;
+                    this._scoreManager.increment(offset);
+                    for (let platform of this._platformManager.platforms) {
+                        platform.y += offset;
+                    }
+                    this._platformManager.generateNewPlatforms(offset, this._scoreManager.score);
+                }
+
+                this.b_Display(this._player.position, this._player.direction, this._platformManager.platforms, this._scoreManager.score, this._gameOver);
+            }
 
             _resetGame() {
                 this._score = 0;
-                this._direction = 0;
-                this._gravitySpeed = 0;
-                this._position = { x: 155, y: 300 };
-                this.platforms = this._generatePlatforms();
+                this._player.reset();
+                this._platformManager.reset(this._score);
+                this._scoreManager.reset();
             }
 
             _endGame() {
                 console.log("Game Over");
-                this.platforms = [];
+                this._platformManager.platforms = [];
                 this._gameOver = true;
-                this._score = Math.floor(this._score);
-                this._direction = 0;
-                this._gravitySpeed = 0;
-                this._position = { x: -100, y: -100 }; // Move doodler off-screen
-                this.b_Display(this._position, this._direction, this.platforms, this._score, this._gameOver);
+                this._scoreManager.displayFinalScore();
+                this._player.reset();
+                this.b_Display(this._player.position, this._player.direction, this._platformManager.platforms, this._scoreManager.score, this._gameOver);
+            }
+        }
+
+        class TileManager {
+            constructor() {
+                this.platformImage = new Image();
+                this.platformImage.src = "/game-tiles.png";
+                this.platformImage.onload = () => {
+                    this.platformImageLoaded = true;
+                    console.log("Platform image loaded");
+                };
+            }
+
+            drawPlatform(ctx, platform) {
+                if (this.platformImageLoaded) {
+                    if (platform.type === 1) {
+                        ctx.drawImage(this.platformImage, 1, 19, 57, 17, platform.x, platform.y, platform.width, platform.height);
+                    } else if (platform.type === 2) {
+                        ctx.drawImage(this.platformImage, 1, 55, 57, 17, platform.x, platform.y, platform.width, platform.height);
+                    } else {
+                        ctx.drawImage(this.platformImage, 1, 1, 57, 17, platform.x, platform.y, platform.width, platform.height);
+                    }
+                }
             }
         }
 
@@ -312,8 +363,7 @@
                 this.doodlerRight = new Image();
                 this.doodlerRight.src = "/lik-right@2x.png";
 
-                this.platformImage = new Image();
-                this.platformImage.src = "/game-tiles.png";
+                this.tileManager = new TileManager();
 
                 this.doodlerLeft.onload = () => {
                     this.doodlerLeftLoaded = true;
@@ -322,10 +372,6 @@
                 this.doodlerRight.onload = () => {
                     this.doodlerRightLoaded = true;
                     console.log("Doodler right image loaded");
-                };
-                this.platformImage.onload = () => {
-                    this.platformImageLoaded = true;
-                    console.log("Platform image loaded");
                 };
 
                 this.Events();
@@ -382,16 +428,8 @@
                     return;
                 }
 
-                if (this.platformImageLoaded) {
-                    for (let platform of platforms) {
-                        if (platform.type === 1) {
-                            this.ctx.drawImage(this.platformImage, 1, 19, 57, 17, platform.x, platform.y, platform.width, platform.height);
-                        } else if (platform.type === 2) {
-                            this.ctx.drawImage(this.platformImage, 1, 55, 57, 17, platform.x, platform.y, platform.width, platform.height);
-                        } else {
-                            this.ctx.drawImage(this.platformImage, 1, 1, 57, 17, platform.x, platform.y, platform.width, platform.height);
-                        }
-                    }
+                for (let platform of platforms) {
+                    this.tileManager.drawPlatform(this.ctx, platform);
                 }
 
                 if (direction === -1) {
@@ -450,15 +488,13 @@
                     this._lag -= this._frameDuration;
                 }
 
-                if (this._model.platforms.length > 0) {
+                if (this._model._platformManager.platforms.length > 0) {
                     requestAnimationFrame(this.Update.bind(this));
                 }
             }
 
             Restart() {
-                document.getElementById('final-score').style.display = 'none';
-                document.getElementById('restart-button').style.display = 'none';
-                document.getElementById('score').style.display = 'block';
+                this._model._scoreManager.hideFinalScore();
                 this._model = new Model();
                 this._model.BindDisplay(this.Display.bind(this));
                 this.Update();
