@@ -171,7 +171,7 @@
 
                 let posY = 550;
                 for (let i = 0; i < 10; i++) {
-                    let x = Math.random() * (400 - 17);
+                    let x = Math.random() * (400 - 57);
                     platforms.push({ x: x, y: posY, width: 57, height: 17, type: 0, speed: 0 });
                     posY -= 100; // Espacement vertical entre les plateformes
                 }
@@ -225,7 +225,7 @@
                 }
 
                 while (newPlatforms.length < 20) {
-                    const x = Math.random() * (400 - 40);
+                    const x = Math.random() * (400 - 57);
                     const y = highestPlatformY - platformSpacing;  // Utilisation de l'espacement calculé pour Y
                     let type = 0;
                     let speed = 0;
