@@ -78,7 +78,7 @@
                 this._score = 0;
                 this._direction = 0;
                 this._gravitySpeed = 0;
-                this._position = { x: 155, y: 300 };
+                this._position = { x: 155, y: 500 };
                 this.platforms = this._generatePlatforms();
                 this._gameOver = false;
             }
@@ -189,8 +189,9 @@
                     }
                 }
 
-                // Déterminer l'écart entre les plateformes en fonction du score
-                let platformSpacing = Math.max(80, 100 - (this._score / 1000));  // L'écart commence à 100, et devient plus petit avec le score.
+                // Calculer l'écart entre les plateformes en fonction du score.
+                // L'écart commence à 30 pour un score de 0 et atteint 100 pour un score de 10000.
+                let platformSpacing = Math.min(100, Math.max(30, this._score / 100));  // Ecart entre 30 et 100
 
                 let normalPlatformProbability = 0;
                 let movingPlatformProbability = 0;
@@ -242,6 +243,7 @@
 
                 this.platforms = newPlatforms;
             }
+
 
 
             _resetGame() {
