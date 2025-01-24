@@ -107,11 +107,11 @@
                         //console.log(`Moving platform at (${platform.x}, ${platform.y}) with speed ${platform.speed}`);
                     }
                     if (
-                        this._position.y + 70 >= platform.y &&  // Bas du doodle est au-dessus ou sur la plateforme
-                        this._position.y + 70 <= platform.y + platform.height &&  // Vérifie que le bas du doodle est au-dessous de la plateforme
-                        this._position.x + 50 > platform.x &&  // Vérifie si le côté droit du doodle touche la plateforme
-                        this._position.x < platform.x + 40 &&  // Vérifie que le côté gauche du doodle est à l'intérieur de la plateforme
-                        this._gravitySpeed > 0 // Si la gravité est active et que le doodle tombe
+                        this._position.y + 70 >= platform.y && 
+                        this._position.y + 70 <= platform.y + platform.height && 
+                        this._position.x + 40 > platform.x &&  
+                        this._position.x < platform.x + 40 &&  
+                        this._gravitySpeed > 0 
                     ) {
                         this._Jump();
                         if (platform.type === 2) {
