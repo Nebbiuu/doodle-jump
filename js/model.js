@@ -2,9 +2,9 @@ class Model {
     constructor() {
         this._score = 0;
         this._player = new Player();
-        this._platformManager = new PlatformManager(this._score);
         this._scoreManager = new ScoreManager();
         this._gameOver = false;
+        this._platformManager = new PlatformManager(0);
     }
 
     get position() { return this._player.position; }
@@ -23,6 +23,7 @@ class Model {
 
         if (this._player.position.y > 600) {
             this._endGame();
+            return;
         }
         if (this._player.position.y < PlatformManager.MAX_HEIGHT && !this._gameOver) {
             const offset = PlatformManager.MAX_HEIGHT - this._player.position.y;
@@ -37,19 +38,20 @@ class Model {
         this.b_Display(this._player.position, this._player.direction, this._platformManager.platforms, this._scoreManager.score, this._gameOver);
     }
 
-    _resetGame() {
-        this._score = 0;
-        this._player.reset();
-        this._platformManager.reset(this._score);
-        this._scoreManager.reset();
-    }
+    // _resetGame() {
+    //     this._score = 0;
+    //     this._player.reset();
+    //     this._platformManager.reset();
+    //     this._scoreManager.reset();
+    //     this.b_Display(this._player.position, this._player.direction, this._platformManager.platforms, this._scoreManager.score, this._gameOver);
+    // }
+
+
 
     _endGame() {
         console.log("Game Over");
         this._platformManager.platforms = [];
         this._gameOver = true;
         this._scoreManager.displayFinalScore();
-        this._player.reset();
-        this.b_Display(this._player.position, this._player.direction, this._platformManager.platforms, this._scoreManager.score, this._gameOver);
     }
 }

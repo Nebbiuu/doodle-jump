@@ -1,8 +1,8 @@
 class PlatformManager {
     static MAX_HEIGHT = 0.25 * 600;
 
-    constructor(score) {
-        this.platforms = this._generatePlatforms(score);
+    constructor() {
+        this.platforms = this._generatePlatforms(0);
     }
 
     _generatePlatforms(score) {
@@ -40,9 +40,9 @@ class PlatformManager {
         } else if (score <= 10000) {
             return { normal: 0.70, moving: 0.20, disappearing: 0.10 };
         } else if (score <= 15000) {
-            return { normal: 0.60, moving: 0.25, disappearing: 0.10, deplacable: 0.05 };
+            return { normal: 0.60, moving: 0.25, disappearing: 0.10, };
         } else {
-            return { normal: 0.50, moving: 0.30, disappearing: 0.15, deplacable: 0.05 };
+            return { normal: 0.50, moving: 0.30, disappearing: 0.15 };
         }
     }
 
@@ -93,7 +93,7 @@ class PlatformManager {
         this._addNewPlatforms(newPlatforms, highestPlatformY, score);
     }
 
-    reset(score) {
-        this.platforms = this._generatePlatforms(score);
+    reset() {
+        this.platforms = this._generatePlatforms(0);
     }
 }

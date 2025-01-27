@@ -13,15 +13,6 @@ class View {
 
         this.tileManager = new TileManager();
 
-        this.doodlerLeft.onload = () => {
-            this.doodlerLeftLoaded = true;
-            console.log("Doodler left image loaded");
-        };
-        this.doodlerRight.onload = () => {
-            this.doodlerRightLoaded = true;
-            console.log("Doodler right image loaded");
-        };
-
         this.Events();
     }
 
@@ -67,14 +58,6 @@ class View {
     Display(position, direction, platforms, score, gameOver) {
         //console.log("Display called with gameOver:", gameOver);
         this.ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
-
-        if (gameOver) {
-            document.getElementById('final-score').innerText = `Final Score: ${score}`;
-            document.getElementById('final-score').style.display = 'block';
-            document.getElementById('restart-button').style.display = 'block';
-            document.getElementById('score').style.display = 'none';
-            return;
-        }
 
         for (let platform of platforms) {
             this.tileManager.drawPlatform(this.ctx, platform);
