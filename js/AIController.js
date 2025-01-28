@@ -3,7 +3,10 @@ class AIController {
         this._model = model;
         this.weights1 = this._model.initializeWeights(6, 4); // 6 inputs, 4 outputs for the first layer
         this.weights2 = this._model.initializeWeights(4, 3); // 4 inputs, 3 outputs for the second layer
-    }
+        this.previousScore = 0;
+        this.stagnantMoves = 0;
+        this.maxStagnantMoves = 250; // Nombre de mouvements avant de considérer que l'IA est bloquée
+   }
 
     getAction() {
         const normalizedInputs = this._model.getNormalizedInputs();
@@ -13,6 +16,18 @@ class AIController {
 
         const maxProbability = Math.max(...probabilities);
         const actionIndex = probabilities.indexOf(maxProbability);
+        
+        if (this._model.score === this.previousScore) {
+            this.stagnantMoves++;
+        } else {
+            this.stagnantMoves = 0;
+            this.previousScore = this._model.score;
+        }
+
+        if (this.stagnantMoves >= this.maxStagnantMoves) {
+            this._model._endGame();
+        }
+
         switch (actionIndex) {
             case 0:
                 return -1; // Move left
