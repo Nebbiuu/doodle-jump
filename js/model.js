@@ -5,6 +5,8 @@ class Model {
         this._scoreManager = new ScoreManager();
         this._gameOver = false;
         this._platformManager = new PlatformManager(0);
+        this.weights1 = this.initializeWeights(6, 4); // 6 inputs, 4 outputs for the first layer
+        this.weights2 = this.initializeWeights(4, 3); // 4 inputs, 3 outputs for the second layer
     }
 
     get position() { return this._player.position; }
@@ -36,9 +38,8 @@ class Model {
         }
 
         const inputVectors = this.getInputVectors();
-        console.log(inputVectors);
 
-        this.b_Display(this._player.position, this._player.direction, this._platformManager.platforms, this._scoreManager.score, this._gameOver, inputVectors);
+        this.b_Display(this._player.position, this._player.direction, this._platformManager.platforms, this._scoreManager.score, this._gameOver, inputVectors, this._useAI);
     }
 
     _endGame() {
@@ -57,5 +58,32 @@ class Model {
         });
 
         return vectors;
+    }
+
+    normalize(value, max) {
+        return value / max;
+    }
+
+    getNormalizedInputs() {
+        const vectors = this.getInputVectors();
+        const magnitudes = vectors.map(vector => vector.magnitude);
+        const maxMagnitude = Math.max(...magnitudes);
+        const normalizedMagnitudes = magnitudes.map(magnitude => this.normalize(magnitude, maxMagnitude));
+        const normalizedX = this.normalize(this._player.position.x, 400);
+        const normalizedY = this.normalize(this._player.position.y, 600);
+
+        return [...normalizedMagnitudes, normalizedX, normalizedY];
+    }
+
+    initializeWeights(inputSize, outputSize) {
+        const weights = [];
+        for (let i = 0; i < outputSize; i++) {
+            const row = [];
+            for (let j = 0; j < inputSize; j++) {
+                row.push(Math.random() * 2 - 1);
+            }
+            weights.push(row);
+        }
+        return weights;
     }
 }

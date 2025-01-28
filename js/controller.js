@@ -2,6 +2,8 @@ class Controller {
     constructor(model, view) {
         this._model = model;
         this._view = view;
+        this._aiController = new AIController(model);
+        this._useAI = true;
 
         this._startTime = Date.now();
         this._lag = 0;
@@ -12,22 +14,29 @@ class Controller {
         this._view.BindSetDirection(this.SetDirection.bind(this));
     }
 
-    Display(position, direction, platforms, score, gameOver,vectors) {
-        this._view.Display(position, direction, platforms, score, gameOver,vectors);
+    Display(position, direction, platforms, score, gameOver, vectors) {
+        this._view.Display(position, direction, platforms, score, gameOver, vectors, this._useAI);
     }
 
     SetDirection(newDirection) {
-        this._model.direction = newDirection;
+        if (!this._useAI) {
+            this._model.direction = newDirection;
+        }
     }
 
     Update() {
         let currentTime = Date.now();
-        let deltaTime = currentTime - this._startTime; // La durée entre deux appels (entre 2 frames).
+        let deltaTime = currentTime - this._startTime;
 
         this._lag += deltaTime;
         this._startTime = currentTime;
 
         while (this._lag >= this._frameDuration) {
+            if (this._useAI) {
+                const action = this._aiController.getAction();
+                this._model.direction = action;
+            }
+
             this._model.Move(this._fps);
             this._lag -= this._frameDuration;
         }
@@ -40,7 +49,13 @@ class Controller {
     Restart() {
         this._model._scoreManager.hideFinalScore();
         this._model = new Model();
+        this._aiController = new AIController(this._model);
         this._model.BindDisplay(this.Display.bind(this));
         this.Update();
+    }
+
+    toggleAI(useAI) {
+        this._useAI = useAI;
+        this.Restart();
     }
 }

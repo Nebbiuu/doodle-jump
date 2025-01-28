@@ -55,7 +55,7 @@ class View {
 
     }
 
-    Display(position, direction, platforms, score, gameOver, vectors) {
+    Display(position, direction, platforms, score, gameOver, vectors, useAI) {
         //console.log("Display called with gameOver:", gameOver);
         this.ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
 
@@ -76,7 +76,8 @@ class View {
         }
 
         document.getElementById('score').innerText = `Score: ${Math.floor(score)}`;
-        if (vectors) {
+       
+        if (useAI && vectors) {
             this.drawVectors(position, vectors);
         }
     }
