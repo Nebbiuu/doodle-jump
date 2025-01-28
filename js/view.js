@@ -55,7 +55,7 @@ class View {
 
     }
 
-    Display(position, direction, platforms, score, gameOver) {
+    Display(position, direction, platforms, score, gameOver, vectors) {
         //console.log("Display called with gameOver:", gameOver);
         this.ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
 
@@ -76,5 +76,21 @@ class View {
         }
 
         document.getElementById('score').innerText = `Score: ${Math.floor(score)}`;
+        if (vectors) {
+            this.drawVectors(position, vectors);
+        }
     }
+
+    drawVectors(playerPosition, vectors) {
+        const colors = ['red', 'green', 'yellow', 'blue'];
+        vectors.forEach((vector, index) => {
+            this.ctx.beginPath();
+            this.ctx.moveTo(playerPosition.x , playerPosition.y ); 
+            this.ctx.lineTo(playerPosition.x  + vector.dx , playerPosition.y + vector.dy );
+            this.ctx.strokeStyle = colors[index % colors.length];
+            this.ctx.lineWidth = 2;
+            this.ctx.stroke();
+        });
+    }
+
 }

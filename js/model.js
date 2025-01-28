@@ -35,23 +35,27 @@ class Model {
             this._platformManager.generateNewPlatforms(offset, this._scoreManager.score);
         }
 
-        this.b_Display(this._player.position, this._player.direction, this._platformManager.platforms, this._scoreManager.score, this._gameOver);
+        const inputVectors = this.getInputVectors();
+        console.log(inputVectors);
+
+        this.b_Display(this._player.position, this._player.direction, this._platformManager.platforms, this._scoreManager.score, this._gameOver, inputVectors);
     }
-
-    // _resetGame() {
-    //     this._score = 0;
-    //     this._player.reset();
-    //     this._platformManager.reset();
-    //     this._scoreManager.reset();
-    //     this.b_Display(this._player.position, this._player.direction, this._platformManager.platforms, this._scoreManager.score, this._gameOver);
-    // }
-
-
 
     _endGame() {
         console.log("Game Over");
         this._platformManager.platforms = [];
         this._gameOver = true;
         this._scoreManager.displayFinalScore();
+    }
+
+    getInputVectors() {
+        const closestPlatforms = this._platformManager.getClosestPlatforms(this._player.position);
+        const vectors = closestPlatforms.map(platform => {
+            const dx = platform.x - this._player.position.x;
+            const dy = platform.y - this._player.position.y;
+            return { dx, dy, magnitude: Math.sqrt(dx * dx + dy * dy) };
+        });
+
+        return vectors;
     }
 }

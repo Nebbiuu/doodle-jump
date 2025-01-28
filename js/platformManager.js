@@ -96,4 +96,19 @@ class PlatformManager {
     reset() {
         this.platforms = this._generatePlatforms(0);
     }
+
+    getClosestPlatforms(playerPosition, count = 4) {
+        const platformsWithDistance = this.platforms.map(platform => {
+            const dx = platform.x - playerPosition.x;
+            const dy = platform.y - playerPosition.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            return { platform, distance };
+        });
+
+        platformsWithDistance.sort((a, b) => a.distance - b.distance);
+
+        const closestPlatforms = platformsWithDistance.slice(0, count).map(item => item.platform);
+
+        return closestPlatforms;
+    }
 }

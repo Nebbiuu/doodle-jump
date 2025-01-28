@@ -12,8 +12,8 @@ class Controller {
         this._view.BindSetDirection(this.SetDirection.bind(this));
     }
 
-    Display(position, direction, platforms, score, gameOver) {
-        this._view.Display(position, direction, platforms, score, gameOver);
+    Display(position, direction, platforms, score, gameOver,vectors) {
+        this._view.Display(position, direction, platforms, score, gameOver,vectors);
     }
 
     SetDirection(newDirection) {
@@ -21,18 +21,14 @@ class Controller {
     }
 
     Update() {
-        /* Calcul du deltaTime */
         let currentTime = Date.now();
         let deltaTime = currentTime - this._startTime; // La durée entre deux appels (entre 2 frames).
 
         this._lag += deltaTime;
         this._startTime = currentTime;
 
-        /* Mettre à jour la logique si la variable _lag est supérieure ou égale à la durée d'une frame */
         while (this._lag >= this._frameDuration) {
-            /* Mise à jour de la logique */
             this._model.Move(this._fps);
-            /* Réduire la variable _lag par la durée d'une frame */
             this._lag -= this._frameDuration;
         }
 
