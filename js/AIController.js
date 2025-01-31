@@ -11,30 +11,31 @@ class AIController {
 
     getAction() {
         const normalizedInputs = this._model.getNormalizedInputs(this.playerIndex);
-     
+
         const neuronOutputs = this.calculateNeuronOutputs(normalizedInputs);
-       
+
         const outputLayer = this.calculateOutputLayer(neuronOutputs);
-   
+
         const probabilities = this.softmax(outputLayer);
-      
+
         const maxProbability = Math.max(...probabilities);
         const actionIndex = probabilities.indexOf(maxProbability);
+
+
+        const currentScore = Math.floor(this._model.scores[this.playerIndex]); // Round the score
         
-        
-        if (this._model.scores[this.playerIndex] === this.previousScore) {
+        if (currentScore <= this.previousScore) {
             this.stagnantMoves++;
         } else {
             this.stagnantMoves = 0;
-            this.previousScore = this._model.scores[this.playerIndex];
+            this.previousScore = currentScore;
         }
 
         if (this.stagnantMoves >= this.maxStagnantMoves) {
-            console.log(this.playerIndex);
-            this._model._endGame(this.playerIndex); // Use the correct player index
+            this._model._endGame(this.playerIndex); 
         }
-      
-        
+
+
         switch (actionIndex) {
             case 0:
                 return -1; //  left
@@ -52,11 +53,11 @@ class AIController {
         for (let i = 0; i < this.weights1.length; i++) {
             let sum = 0;
             for (let j = 0; j < inputs.length; j++) {
-               
+
                 sum += inputs[j] * this.weights1[i][j];
-                
+
             }
-            
+
             outputs.push(this.relu(sum));
         }
         return outputs;

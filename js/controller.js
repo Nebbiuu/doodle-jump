@@ -45,7 +45,18 @@ class Controller {
             this._lag -= this._frameDuration;
         }
 
-        if (this._model._platformManagers.some(pm => pm.platforms.length > 0)) {
+        if (this._model.allPlayersFinished()) {
+            const finalScores = this._model.getFinalScores();
+            const top3Players = this._model.getTop3Players(finalScores);
+
+            console.log(top3Players);
+            if (top3Players[0].score === 0) {
+                this.Restart();
+            } else {
+                this._model.generateNewPopulation(top3Players);
+                this.Restart();
+            }
+        } else {
             requestAnimationFrame(this.Update.bind(this));
         }
     }

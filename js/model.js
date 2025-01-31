@@ -53,7 +53,7 @@ class Model {
     }
 
     _endGame(index) {
-        console.log(`Game Over for player ${index}`);
+        // console.log(`Game Over for player ${index}`);
         this._platformManagers[index].platforms = [];
         this._gameOver[index] = true;
         this._scoreManagers[index].displayFinalScore();
@@ -96,5 +96,59 @@ class Model {
             weights.push(row);
         }
         return weights;
+    }
+    allPlayersFinished() {
+        return this._gameOver.every(gameOver => gameOver);
+    }
+    getFinalScores() {
+        return this._players.map((player, index) => ({
+            index,
+            score: this._scoreManagers[index].score,
+            weights1: this.weights1[index],
+            weights2: this.weights2[index]
+        })).sort((a, b) => b.score - a.score);
+    }
+    getTop3Players(finalScores) {
+        return finalScores.slice(0, 3);
+    }
+    generateNewPopulation(top3Players) {
+        const newWeights1 = [];
+        const newWeights2 = [];
+
+        for (let i = 0; i < 3; i++) {
+            newWeights1.push(top3Players[i].weights1);
+            newWeights2.push(top3Players[i].weights2);
+        }
+
+        for (let i = 0; i < 7; i++) {
+            const parent = top3Players[i % 3];
+            newWeights1.push(this.mutateWeights(parent.weights1));
+            newWeights2.push(this.mutateWeights(parent.weights2));
+        }
+
+        this.weights1 = newWeights1;
+        this.weights2 = newWeights2;
+
+        this._players = [];
+        this._scoreManagers = [];
+        this._platformManagers = [];
+        this._gameOver = [];
+
+        for (let i = 0; i < 10; i++) {
+            this._players.push(new Player());
+            this._scoreManagers.push(new ScoreManager(i));
+            this._platformManagers.push(new PlatformManager(0));
+            this._gameOver.push(false);
+        }
+
+    }
+    mutateWeights(weights) {
+        const mutationRate = 0.1;
+        return weights.map(row => row.map(weight => {
+            if (Math.random() < mutationRate) {
+                return weight + (Math.random() * 2 - 1) * 0.1;
+            }
+            return weight;
+        }));
     }
 }
