@@ -1,66 +1,70 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mouvement</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
-    <div style="position: relative;">
-        <!-- Add 10 canvas elements with score elements -->
-        <div id="games-container">
-            <div class="canvas-container">
-                <canvas id="my_canvas_0" width="400" height="600"></canvas>
-                <div id="score_0" class="score">Score: 0</div>
-                <div id="final-score_0" class="final-score">Final Score: 0</div>
-            </div>
-            <div class="canvas-container">
-                <canvas id="my_canvas_1" width="400" height="600"></canvas>
-                <div id="score_1" class="score">Score: 0</div>
-                <div id="final-score_1" class="final-score">Final Score: 0</div>
-            </div>
-            <div class="canvas-container">
-                <canvas id="my_canvas_2" width="400" height="600"></canvas>
-                <div id="score_2" class="score">Score: 0</div>
-                <div id="final-score_2" class="final-score">Final Score: 0</div>
-            </div>
-            <div class="canvas-container">
-                <canvas id="my_canvas_3" width="400" height="600"></canvas>
-                <div id="score_3" class="score">Score: 0</div>
-                <div id="final-score_3" class="final-score">Final Score: 0</div>
-            </div>
-            <div class="canvas-container">
-                <canvas id="my_canvas_4" width="400" height="600"></canvas>
-                <div id="score_4" class="score">Score: 0</div>
-                <div id="final-score_4" class="final-score">Final Score: 0</div>
-            </div>
-            <div class="canvas-container">
-                <canvas id="my_canvas_5" width="400" height="600"></canvas>
-                <div id="score_5" class="score">Score: 0</div>
-                <div id="final-score_5" class="final-score">Final Score: 0</div>
-            </div>
-            <div class="canvas-container">
-                <canvas id="my_canvas_6" width="400" height="600"></canvas>
-                <div id="score_6" class="score">Score: 0</div>
-                <div id="final-score_6" class="final-score">Final Score: 0</div>
-            </div>
-            <div class="canvas-container">
-                <canvas id="my_canvas_7" width="400" height="600"></canvas>
-                <div id="score_7" class="score">Score: 0</div>
-                <div id="final-score_7" class="final-score">Final Score: 0</div>
-            </div>
-            <div class="canvas-container">
-                <canvas id="my_canvas_8" width="400" height="600"></canvas>
-                <div id="score_8" class="score">Score: 0</div>
-                <div id="final-score_8" class="final-score">Final Score: 0</div>
-            </div>
-            <div class="canvas-container">
-                <canvas id="my_canvas_9" width="400" height="600"></canvas>
-                <div id="score_9" class="score">Score: 0</div>
-                <div id="final-score_9" class="final-score">Final Score: 0</div>
-            </div>
+    <div id="games-container">
+        <div class="canvas-container">
+            <canvas id="my_canvas_0" width="400" height="600"></canvas>
+            <div id="score_0" class="score">Score: 0</div>
+            <div id="final-score_0" class="final-score">Final Score: 0</div>
         </div>
+        <div class="canvas-container">
+            <canvas id="my_canvas_1" width="400" height="600"></canvas>
+            <div id="score_1" class="score">Score: 0</div>
+            <div id="final-score_1" class="final-score">Final Score: 0</div>
+        </div>
+        <div class="canvas-container">
+            <canvas id="my_canvas_2" width="400" height="600"></canvas>
+            <div id="score_2" class="score">Score: 0</div>
+            <div id="final-score_2" class="final-score">Final Score: 0</div>
+        </div>
+        <div class="canvas-container">
+            <canvas id="my_canvas_3" width="400" height="600"></canvas>
+            <div id="score_3" class="score">Score: 0</div>
+            <div id="final-score_3" class="final-score">Final Score: 0</div>
+        </div>
+        <div class="canvas-container">
+            <canvas id="my_canvas_4" width="400" height="600"></canvas>
+            <div id="score_4" class="score">Score: 0</div>
+            <div id="final-score_4" class="final-score">Final Score: 0</div>
+        </div>
+        <div class="canvas-container">
+            <canvas id="my_canvas_5" width="400" height="600"></canvas>
+            <div id="score_5" class="score">Score: 0</div>
+            <div id="final-score_5" class="final-score">Final Score: 0</div>
+        </div>
+        <div class="canvas-container">
+            <canvas id="my_canvas_6" width="400" height="600"></canvas>
+            <div id="score_6" class="score">Score: 0</div>
+            <div id="final-score_6" class="final-score">Final Score: 0</div>
+        </div>
+        <div class="canvas-container">
+            <canvas id="my_canvas_7" width="400" height="600"></canvas>
+            <div id="score_7" class="score">Score: 0</div>
+            <div id="final-score_7" class="final-score">Final Score: 0</div>
+        </div>
+        <div class="canvas-container">
+            <canvas id="my_canvas_8" width="400" height="600"></canvas>
+            <div id="score_8" class="score">Score: 0</div>
+            <div id="final-score_8" class="final-score">Final Score: 0</div>
+        </div>
+        <div class="canvas-container">
+            <canvas id="my_canvas_9" width="400" height="600"></canvas>
+            <div id="score_9" class="score">Score: 0</div>
+            <div id="final-score_9" class="final-score">Final Score: 0</div>
+        </div>
+    </div>
+    <div id="best-weights" class="hidden">
+        <button id="stop-button">Stop and Show Best Weights</button>
+        <textarea id="weights-textarea" readonly></textarea>
+        <button id="copy-button">Copy to Clipboard</button>
     </div>
     <script src="js/player.js"></script>
     <script src="js/platformManager.js"></script>
@@ -73,4 +77,5 @@
     <script src="js/controller.js"></script>
     <script src="js/main.js"></script>
 </body>
+
 </html>

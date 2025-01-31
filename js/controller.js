@@ -4,6 +4,7 @@ class Controller {
         this._view = view;
         this._aiControllers = [];
         this._useAI = true;
+        this._running = true;
 
         for (let i = 0; i < 10; i++) {
             this._aiControllers.push(new AIController(model, i)); // Pass the player index
@@ -16,6 +17,9 @@ class Controller {
 
         this._model.BindDisplay(this.Display.bind(this));
         this._view.BindSetDirection(this.SetDirection.bind(this));
+
+        document.getElementById('stop-button').addEventListener('click', this.stopAndShowBestWeights.bind(this));
+        document.getElementById('copy-button').addEventListener('click', this.copyToClipboard.bind(this));
     }
 
     Display(positions, directions, platforms, scores, gameOver, vectors) {
@@ -29,6 +33,8 @@ class Controller {
     }
 
     Update() {
+        if (!this._running) return;
+
         let currentTime = Date.now();
         let deltaTime = currentTime - this._startTime;
 
@@ -70,5 +76,24 @@ class Controller {
         }
         this._model.BindDisplay(this.Display.bind(this));
         this.Update();
+    }
+
+    stopAndShowBestWeights() {
+        this._running = false;
+        const finalScores = this._model.getFinalScores();
+        const bestPlayer = finalScores[0];
+        const weights = {
+            weights1: bestPlayer.weights1,
+            weights2: bestPlayer.weights2
+        };
+        const weightsText = JSON.stringify(weights, null, 2);
+        document.getElementById('weights-textarea').value = weightsText;
+        document.getElementById('best-weights').classList.remove('hidden');
+    }
+
+    copyToClipboard() {
+        const textarea = document.getElementById('weights-textarea');
+        textarea.select();
+        document.execCommand('copy');
     }
 }
