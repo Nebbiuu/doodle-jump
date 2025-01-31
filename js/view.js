@@ -72,16 +72,18 @@ class View {
                 this.tileManager.drawPlatform(ctx, platform);
             }
 
-            if (directions[i] === -1) {
-                this.lastDirection = -1;
-            } else if (directions[i] === 1) {
-                this.lastDirection = 1;
-            }
+            if (!gameOver[i]) {
+                if (directions[i] === -1) {
+                    this.lastDirection = -1;
+                } else if (directions[i] === 1) {
+                    this.lastDirection = 1;
+                }
 
-            if (this.lastDirection == 1) {
-                ctx.drawImage(this.doodlerRight, positions[i].x, positions[i].y, 70, 70);
-            } else {
-                ctx.drawImage(this.doodlerLeft, positions[i].x, positions[i].y, 70, 70);
+                if (this.lastDirection == 1) {
+                    ctx.drawImage(this.doodlerRight, positions[i].x, positions[i].y, 70, 70);
+                } else {
+                    ctx.drawImage(this.doodlerLeft, positions[i].x, positions[i].y, 70, 70);
+                }
             }
 
             const scoreElement = document.getElementById(`score_${i}`);

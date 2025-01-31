@@ -38,7 +38,7 @@ class Controller {
         while (this._lag >= this._frameDuration) {
             if (this._useAI) {
                 const actions = this._aiControllers.map(aiController => aiController.getAction());
-                this._model.directions = actions;
+                this._model.directions = actions; // Apply AI actions to player directions
             }
 
             this._model.Move(this._fps);
@@ -55,10 +55,9 @@ class Controller {
         this._model = new Model();
         this._aiControllers = [];
         for (let i = 0; i < 10; i++) {
-            this._aiControllers.push(new AIController(this._model));
+            this._aiControllers.push(new AIController(this._model, i)); // Pass the player index
         }
         this._model.BindDisplay(this.Display.bind(this));
         this.Update();
     }
-
 }

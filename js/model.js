@@ -74,17 +74,16 @@ class Model {
         return value / max;
     }
 
-    getNormalizedInputs() {
-        return this._players.map((player, index) => {
-            const vectors = this.getInputVectors()[index];
-            const magnitudes = vectors.map(vector => vector.magnitude);
-            const maxMagnitude = Math.max(...magnitudes);
-            const normalizedMagnitudes = magnitudes.map(magnitude => this.normalize(magnitude, maxMagnitude));
-            const normalizedX = this.normalize(player.position.x, 400);
-            const normalizedY = this.normalize(player.position.y, 600);
+    getNormalizedInputs(playerIndex) {
+        const player = this._players[playerIndex];
+        const vectors = this.getInputVectors()[playerIndex];
+        const magnitudes = vectors.map(vector => vector.magnitude);
+        const maxMagnitude = Math.max(...magnitudes);
+        const normalizedMagnitudes = magnitudes.map(magnitude => this.normalize(magnitude, maxMagnitude));
+        const normalizedX = this.normalize(player.position.x, 400);
+        const normalizedY = this.normalize(player.position.y, 600);
 
-            return [...normalizedMagnitudes, normalizedX, normalizedY];
-        });
+        return [...normalizedMagnitudes, normalizedX, normalizedY];
     }
 
     initializeWeights(inputSize, outputSize) {
