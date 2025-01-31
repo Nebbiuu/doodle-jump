@@ -1,6 +1,7 @@
 class ScoreManager {
-    constructor() {
+    constructor(playerIndex) {
         this._score = 0;
+        this.playerIndex = playerIndex;
     }
 
     get score() {
@@ -16,19 +17,17 @@ class ScoreManager {
     }
 
     displayScore() {
-        document.getElementById('score').innerText = `Score: ${Math.floor(this._score)}`;
+        document.getElementById(`score_${this.playerIndex}`).innerText = `Score: ${Math.floor(this._score)}`;
     }
 
     displayFinalScore() {
-        document.getElementById('final-score').innerText = `Final Score: ${Math.floor(this._score)}`;
-        document.getElementById('final-score').style.display = 'block';
-        document.getElementById('restart-button').style.display = 'block';
-        document.getElementById('score').style.display = 'none';
+        document.getElementById(`final-score_${this.playerIndex}`).innerText = `Final Score: ${Math.floor(this._score)}`;
+        document.getElementById(`final-score_${this.playerIndex}`).style.display = 'block';
+       document.getElementById(`score_${this.playerIndex}`).style.display = 'none';
     }
 
     hideFinalScore() {
-        document.getElementById('final-score').style.display = 'none';
-        document.getElementById('restart-button').style.display = 'none';
-        document.getElementById('score').style.display = 'block';
+        document.getElementById(`final-score_${this.playerIndex}`).style.display = 'none';
+        document.getElementById(`score_${this.playerIndex}`).style.display = 'block';
     }
 }

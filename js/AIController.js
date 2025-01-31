@@ -1,12 +1,13 @@
 class AIController {
-    constructor(model) {
+    constructor(model, playerIndex) {
         this._model = model;
-        this.weights1 = this._model.initializeWeights(6, 4); // 6 inputs, 4 outputs for the first layer
-        this.weights2 = this._model.initializeWeights(4, 3); // 4 inputs, 3 outputs for the second layer
+        this.playerIndex = playerIndex; // Store the player index
+        this.weights1 = this._model.initializeWeights(6, 4);
+        this.weights2 = this._model.initializeWeights(4, 3);
         this.previousScore = 0;
         this.stagnantMoves = 0;
-        this.maxStagnantMoves = 250; // Nombre de mouvements avant de considérer que l'IA est bloquée
-   }
+        this.maxStagnantMoves = 250;
+    }
 
     getAction() {
         const normalizedInputs = this._model.getNormalizedInputs();
@@ -17,26 +18,27 @@ class AIController {
         const maxProbability = Math.max(...probabilities);
         const actionIndex = probabilities.indexOf(maxProbability);
         
-        if (this._model.score === this.previousScore) {
+        if (this._model.scores[this.playerIndex] === this.previousScore) {
             this.stagnantMoves++;
         } else {
             this.stagnantMoves = 0;
-            this.previousScore = this._model.score;
+            this.previousScore = this._model.scores[this.playerIndex];
         }
 
         if (this.stagnantMoves >= this.maxStagnantMoves) {
-            this._model._endGame();
+            console.log(this.playerIndex);
+            this._model._endGame(this.playerIndex); // Use the correct player index
         }
 
         switch (actionIndex) {
             case 0:
-                return -1; // Move left
+                return -1; //  left
             case 1:
-                return 1; // Move right
+                return 1; // right
             case 2:
                 return 0; // Stay
             default:
-                return 0; // Default to stay
+                return 0;
         }
     }
 

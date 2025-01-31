@@ -14,7 +14,13 @@ canvas {
     position: relative;
 }
 
-#score {
+.canvas-container {
+    position: relative;
+    display: inline-block;
+    margin: 10px;
+}
+
+.score {
     position: absolute;
     top: 10px;
     right: 10px;
@@ -23,7 +29,7 @@ canvas {
     z-index: 1;
 }
 
-#final-score {
+.final-score {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -32,18 +38,4 @@ canvas {
     color: red;
     display: none;
     text-align: center;
-}
-
-#restart-button {
-    display: none;
-    position: absolute;
-    top: 80%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 24px;
-    padding: 10px 20px;
-    background-color: red;
-    color: white;
-    border: none;
-    cursor: pointer;
 }
