@@ -1,7 +1,7 @@
 class View {
     constructor() {
-        this._canvas = document.getElementById('my_canvas');
-        this.ctx = this._canvas.getContext('2d');
+        this._canvases = [];
+        this.ctxs = [];
         this._hold_right = false;
         this._hold_left = false;
         this.lastDirection = 1;
@@ -13,7 +13,16 @@ class View {
 
         this.tileManager = new TileManager();
 
+        this.initializeCanvases();
         this.Events();
+    }
+
+    initializeCanvases() {
+        for (let i = 0; i < 10; i++) {
+            const canvas = document.getElementById(`my_canvas_${i}`);
+            this._canvases.push(canvas);
+            this.ctxs.push(canvas.getContext('2d'));
+        }
     }
 
     BindSetDirection(callback) {
@@ -52,46 +61,51 @@ class View {
                     break;
             }
         });
-
     }
 
-    Display(position, direction, platforms, score, gameOver, vectors, useAI) {
-        //console.log("Display called with gameOver:", gameOver);
-        this.ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
+    Display(positions, directions, platforms, scores, gameOver, vectors, useAI) {
+        for (let i = 0; i < 10; i++) {
+            const ctx = this.ctxs[i];
+            ctx.clearRect(0, 0, this._canvases[i].width, this._canvases[i].height);
 
-        for (let platform of platforms) {
-            this.tileManager.drawPlatform(this.ctx, platform);
-        }
+            for (let platform of platforms[i]) {
+                this.tileManager.drawPlatform(ctx, platform);
+            }
 
-        if (direction === -1) {
-            this.lastDirection = -1;
-        } else if (direction === 1) {
-            this.lastDirection = 1;
-        }
+            if (!gameOver[i]) {
+                if (directions[i] === -1) {
+                    this.lastDirection = -1;
+                } else if (directions[i] === 1) {
+                    this.lastDirection = 1;
+                }
 
-        if (this.lastDirection == 1) {
-            this.ctx.drawImage(this.doodlerRight, position.x, position.y, 70, 70);
-        } else {
-            this.ctx.drawImage(this.doodlerLeft, position.x, position.y, 70, 70);
-        }
+                if (this.lastDirection == 1) {
+                    ctx.drawImage(this.doodlerRight, positions[i].x, positions[i].y, 70, 70);
+                } else {
+                    ctx.drawImage(this.doodlerLeft, positions[i].x, positions[i].y, 70, 70);
+                }
+            }
 
-        document.getElementById('score').innerText = `Score: ${Math.floor(score)}`;
-       
-        if (useAI && vectors) {
-            this.drawVectors(position, vectors);
+            const scoreElement = document.getElementById(`score_${i}`);
+            if (scoreElement) {
+                scoreElement.innerText = `Score: ${Math.floor(scores[i])}`;
+            }
+
+            if (useAI && vectors[i]) {
+                this.drawVectors(ctx, positions[i], vectors[i]);
+            }
         }
     }
 
-    drawVectors(playerPosition, vectors) {
+    drawVectors(ctx, playerPosition, vectors) {
         const colors = ['red', 'green', 'yellow', 'blue'];
         vectors.forEach((vector, index) => {
-            this.ctx.beginPath();
-            this.ctx.moveTo(playerPosition.x , playerPosition.y ); 
-            this.ctx.lineTo(playerPosition.x  + vector.dx , playerPosition.y + vector.dy );
-            this.ctx.strokeStyle = colors[index % colors.length];
-            this.ctx.lineWidth = 2;
-            this.ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(playerPosition.x, playerPosition.y);
+            ctx.lineTo(playerPosition.x + vector.dx, playerPosition.y + vector.dy);
+            ctx.strokeStyle = colors[index % colors.length];
+            ctx.lineWidth = 2;
+            ctx.stroke();
         });
     }
-
 }

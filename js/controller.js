@@ -2,8 +2,13 @@ class Controller {
     constructor(model, view) {
         this._model = model;
         this._view = view;
-        this._aiController = new AIController(model);
+        this._aiControllers = [];
         this._useAI = true;
+        this._running = true;
+
+        for (let i = 0; i < 10; i++) {
+            this._aiControllers.push(new AIController(model, i)); // Pass the player index
+        }
 
         this._startTime = Date.now();
         this._lag = 0;
@@ -12,19 +17,24 @@ class Controller {
 
         this._model.BindDisplay(this.Display.bind(this));
         this._view.BindSetDirection(this.SetDirection.bind(this));
+
+        document.getElementById('stop-button').addEventListener('click', this.stopAndShowBestWeights.bind(this));
+        document.getElementById('copy-button').addEventListener('click', this.copyToClipboard.bind(this));
     }
 
-    Display(position, direction, platforms, score, gameOver, vectors) {
-        this._view.Display(position, direction, platforms, score, gameOver, vectors, this._useAI);
+    Display(positions, directions, platforms, scores, gameOver, vectors) {
+        this._view.Display(positions, directions, platforms, scores, gameOver, vectors, this._useAI);
     }
 
-    SetDirection(newDirection) {
+    SetDirection(newDirections) {
         if (!this._useAI) {
-            this._model.direction = newDirection;
+            this._model.directions = newDirections;
         }
     }
 
     Update() {
+        if (!this._running) return;
+
         let currentTime = Date.now();
         let deltaTime = currentTime - this._startTime;
 
@@ -33,29 +43,57 @@ class Controller {
 
         while (this._lag >= this._frameDuration) {
             if (this._useAI) {
-                const action = this._aiController.getAction();
-                this._model.direction = action;
+                const actions = this._aiControllers.map(aiController => aiController.getAction());
+                this._model.directions = actions; // Apply AI actions to player directions
             }
 
             this._model.Move(this._fps);
             this._lag -= this._frameDuration;
         }
 
-        if (this._model._platformManager.platforms.length > 0) {
+        if (this._model.allPlayersFinished()) {
+            const finalScores = this._model.getFinalScores();
+            const top3Players = this._model.getTop3Players(finalScores);
+
+            console.log(top3Players);
+            if (top3Players[0].score === 0) {
+                this.Restart();
+            } else {
+                this._model.generateNewPopulation(top3Players);
+                this.Restart();
+            }
+        } else {
             requestAnimationFrame(this.Update.bind(this));
         }
     }
 
     Restart() {
-        this._model._scoreManager.hideFinalScore();
+        this._model._scoreManagers.forEach(scoreManager => scoreManager.hideFinalScore());
         this._model = new Model();
-        this._aiController = new AIController(this._model);
+        this._aiControllers = [];
+        for (let i = 0; i < 10; i++) {
+            this._aiControllers.push(new AIController(this._model, i)); // Pass the player index
+        }
         this._model.BindDisplay(this.Display.bind(this));
         this.Update();
     }
 
-    toggleAI(useAI) {
-        this._useAI = useAI;
-        this.Restart();
+    stopAndShowBestWeights() {
+        this._running = false;
+        const finalScores = this._model.getFinalScores();
+        const bestPlayer = finalScores[0];
+        const weights = {
+            weights1: bestPlayer.weights1,
+            weights2: bestPlayer.weights2
+        };
+        const weightsText = JSON.stringify(weights, null, 2);
+        document.getElementById('weights-textarea').value = weightsText;
+        document.getElementById('best-weights').classList.remove('hidden');
+    }
+
+    copyToClipboard() {
+        const textarea = document.getElementById('weights-textarea');
+        textarea.select();
+        document.execCommand('copy');
     }
 }
