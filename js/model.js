@@ -7,6 +7,7 @@ class Model {
         this._platformManager = new PlatformManager(0);
         this.weights1 = this.initializeWeights(6, 4); // 6 inputs, 4 outputs for the first layer
         this.weights2 = this.initializeWeights(4, 3); // 4 inputs, 3 outputs for the second layer
+        this.scoreMax = 5000;
     }
 
     get position() { return this._player.position; }
@@ -27,19 +28,59 @@ class Model {
             this._endGame();
             return;
         }
+
         if (this._player.position.y < PlatformManager.MAX_HEIGHT && !this._gameOver) {
             const offset = PlatformManager.MAX_HEIGHT - this._player.position.y;
             this._player.position.y = PlatformManager.MAX_HEIGHT;
             this._scoreManager.increment(offset);
+            this._scoreManager._score = Math.min(this._scoreManager._score, this.scoreMax);
             for (let platform of this._platformManager.platforms) {
                 platform.y += offset;
             }
-            this._platformManager.generateNewPlatforms(offset, this._scoreManager.score);
+            // Générer les plateformes de fin quand on approche du score max
+            if (this._scoreManager._score > this.scoreMax - 100) {
+                if (!this._platformManager.hasGeneratedEndPlatforms) {
+                    let endingPlatforms = this._platformManager.generateEndingPlatforms(this._player.position.y + 200);
+                    this._platformManager.platforms.push(...endingPlatforms);
+                    this._platformManager.hasGeneratedEndPlatforms = true;
+                }
+            }
+
+            if (this._platformManager.hasGeneratedEndPlatforms) {
+                let yType3 = this._platformManager.platforms.find(platform => platform.type === 3)?.y;
+
+                if (yType3 !== undefined) {
+                    for (let platform of this._platformManager.platforms) {
+                        // Modifier le type des plateformes qui ne sont PAS de type 3 et qui sont AU-DESSUS des plateformes de type 3
+                        if (platform.type !== 3 && platform.y <= yType3) {
+                            platform.type = 4;
+                        }
+                    }
+                }
+            }
+
+            // Stop la génération
+            if (this._scoreManager._score < this.scoreMax) {
+                this._platformManager.generateNewPlatforms(offset, this._scoreManager.score);
+            } else {
+                this._platformManager.platforms = this._platformManager.platforms.filter(platform => platform.type !== 4);
+            }
+
+            // Supprimer les plateformes trop hautes (y bas)
+            //this._platformManager.platforms = this._platformManager.platforms.filter(platform => platform.y > this._player.position.y - 400);
         }
 
         const inputVectors = this.getInputVectors();
 
-        this.b_Display(this._player.position, this._player.direction, this._platformManager.platforms, this._scoreManager.score, this._gameOver, inputVectors, this._useAI);
+        this.b_Display(
+            this._player.position,
+            this._player.direction,
+            this._platformManager.platforms,
+            this._scoreManager.score,
+            this._gameOver,
+            inputVectors,
+            this._useAI
+        );
     }
 
     _endGame() {

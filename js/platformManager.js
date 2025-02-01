@@ -3,6 +3,7 @@ class PlatformManager {
 
     constructor() {
         this.platforms = this._generatePlatforms(0);
+        this.hasGeneratedEndPlatforms = false;
     }
 
     _generatePlatforms(score) {
@@ -93,6 +94,10 @@ class PlatformManager {
         this._addNewPlatforms(newPlatforms, highestPlatformY, score);
     }
 
+    deleteAllPlatforms() {
+        this.platforms = [];
+    }
+
     reset() {
         this.platforms = this._generatePlatforms(0);
     }
@@ -111,4 +116,28 @@ class PlatformManager {
 
         return closestPlatforms;
     }
+
+    generateEndingPlatforms(playerY) {
+        let endingPlatforms = [];
+        let gap = 57; // Espace entre les plateformes
+        let screenWidth = 600; // Largeur de l'écran (ajuste si besoin)
+        let numPlatforms = Math.ceil(screenWidth / gap); // S'assurer de couvrir toute la largeur
+    
+        let finalY = playerY - 500; // Décaler vers le bas pour l'effet smooth
+    
+        for (let i = 0; i < numPlatforms; i++) {
+            endingPlatforms.push({
+                x: i * gap, 
+                y: finalY, // Nouvelle hauteur ajustée
+                width: 57,
+                height: 17,
+                type: 3,
+                speed: 0,
+            });
+        }
+    
+        return endingPlatforms;
+    }
+    
+
 }
