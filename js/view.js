@@ -1,5 +1,10 @@
 class View {
     constructor() {
+        this._canvasesNumber = 10;
+        const filename = window.location.pathname.split('/').pop();
+        if (filename == 'solo.html') {
+            this._canvasesNumber=1;
+        }
         this._canvases = [];
         this.ctxs = [];
         this._hold_right = false;
@@ -18,15 +23,15 @@ class View {
     }
 
     initializeCanvases() {
-        for (let i = 0; i < 10; i++) {
+        for (let i = 0; i < this._canvasesNumber; i++) {
             const canvas = document.getElementById(`my_canvas_${i}`);
             this._canvases.push(canvas);
             this.ctxs.push(canvas.getContext('2d'));
         }
     }
 
-    BindSetDirection(callback) {
-        this.b_SetDirection = callback;
+    BindSetDirections(callback) {
+        this.b_SetDirections = callback;
     }
 
     Events() {
@@ -35,11 +40,11 @@ class View {
                 switch (evt.key) {
                     case 'ArrowLeft': // Move left.
                         this._hold_left = true;
-                        this.b_SetDirection(-1);
+                        this.b_SetDirections(-1);
                         break;
                     case 'ArrowRight': // Move right.
                         this._hold_right = true;
-                        this.b_SetDirection(1);
+                        this.b_SetDirections(1);
                         break;
                 }
             }
@@ -49,13 +54,13 @@ class View {
             switch (evt.key) {
                 case 'ArrowLeft': // Move left.
                     if (!this._hold_right) {
-                        this.b_SetDirection(0);
+                        this.b_SetDirections(0);
                     }
                     this._hold_left = false;
                     break;
                 case 'ArrowRight': // Move right.
                     if (!this._hold_left) {
-                        this.b_SetDirection(0);
+                        this.b_SetDirections(0);
                     }
                     this._hold_right = false;
                     break;
@@ -64,7 +69,7 @@ class View {
     }
 
     Display(positions, directions, platforms, scores, gameOver, vectors, useAI) {
-        for (let i = 0; i < 10; i++) {
+        for (let i = 0; i < this._canvasesNumber; i++) {
             const ctx = this.ctxs[i];
             ctx.clearRect(0, 0, this._canvases[i].width, this._canvases[i].height);
 

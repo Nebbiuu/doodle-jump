@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mouvement</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <div style="position: relative;">
+        <canvas id="my_canvas_0" width="400" height="600"></canvas>
+        <div id="score_0" class="score">Score: 0</div>
+        <div id="final-score_0" class="final-score">Final Score: 0</div>
+        <button id="restart-button">Restart</button>
+        <button id="manual-button">Manual</button>
+        <button id="ai-button">AI</button>
+        <!-- <button id="stop-button">Stop and Show Best Weights</button> -->
+        <!-- <button id="copy-button">Copy to Clipboard</button> -->
+        <button id="multi-ai-button"><a href="index.html">Multi</a></button>
+    </div>
+    <script src="js/player.js"></script>
+    <script src="js/platformManager.js"></script>
+    <script src="js/collisionManager.js"></script>
+    <script src="js/scoreManager.js"></script>
+    <script src="js/tileManager.js"></script>
+    <script src="js/view.js"></script>
+    <script src="js/model.js"></script>
+    <script src="js/AIController.js"></script>
+    <script src="js/controller.js"></script>
+    <script src="js/main.js"></script>
+</body>
+
+</html>

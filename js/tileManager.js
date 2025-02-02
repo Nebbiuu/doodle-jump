@@ -4,7 +4,6 @@ class TileManager {
         this.platformImage.src = "/img/game-tiles.png";
         this.platformImage.onload = () => {
             this.platformImageLoaded = true;
-            console.log("Platform image loaded");
         };
 
         this.platformTypes = {

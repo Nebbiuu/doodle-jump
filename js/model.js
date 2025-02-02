@@ -13,8 +13,15 @@ class Model {
         this._gameOver = [];
         this.weights1 = [];
         this.weights2 = [];
-        this.scoreMax = 1000;
-        for (let i = 0; i < 10; i++) {
+        this.directions = [];
+        this.scoreMax = 2000;
+        this.canvasesNumber=10;
+
+        const filename = window.location.pathname.split('/').pop();
+        if (filename == 'solo.html') {
+            this.canvasesNumber=1;
+        }
+        for (let i = 0; i < this.canvasesNumber; i++) {
             this._players.push(new Player());
             this._scoreManagers.push(new ScoreManager(i)); // Pass the player index
             this._platformManagers.push(new PlatformManager(0));
@@ -23,7 +30,7 @@ class Model {
             this.weights2.push(this.initializeWeights(4, 3));
         }
     }
-
+    
     get positions() { return this._players.map(player => player.position); }
     get directions() { return this._players.map(player => player.direction); }
     set directions(values) { values.forEach((value, index) => this._players[index].direction = value); }
@@ -34,7 +41,9 @@ class Model {
     }
 
     Move(fps) {
-        for (let i = 0; i < 10; i++) {
+       // console.log(this.directions);
+        
+        for (let i = 0; i < this.canvasesNumber; i++) {
             this._players[i].move(fps);
             this._platformManagers[i].movePlatforms(fps);
             CollisionManager.checkPlayerPlatformCollision(this._players[i], this._platformManagers[i].platforms);
@@ -52,9 +61,9 @@ class Model {
                 }
                 this._platformManagers[i].generateNewPlatforms(offset, this._scoreManagers[i].score);
 
-                if (this._scoreManagers[i]._score > this.scoreMax - 100) {
+                if (this._scoreManagers[i]._score > this.scoreMax) {
                     if (!this._platformManagers[i].hasGeneratedEndPlatforms) {
-                        let endingPlatforms = this._platformManagers[i].generateEndingPlatforms(this._player.position.y + 200);
+                        let endingPlatforms = this._platformManagers[i].generateEndingPlatforms(this._player.position.y);
                         this._platformManagers[i].platforms.push(...endingPlatforms);
                         this._platformManagers[i].hasGeneratedEndPlatforms = true;
                     }
@@ -75,7 +84,7 @@ class Model {
     
                 // Stop la génération
                 if (this._scoreManagers[i]._score < this.scoreMax) {
-                    this._platformManagers[i].generateNewPlatforms(offset, this._scoreManager.score);
+                    this._platformManagers[i].generateNewPlatforms(offset, this._scoreManagers[i].score);
                 } else {
                     this._platformManagers[i].platforms = this._platformManagers[i].platforms.filter(platform => platform.type !== 4);
                 }
@@ -144,6 +153,7 @@ class Model {
         })).sort((a, b) => b.score - a.score);
     }
     getTop3Players(finalScores) {
+        console.log(finalScores.slice(0, 3));        
         return finalScores.slice(0, 3);
     }
     generateNewPopulation(top3Players) {
@@ -169,7 +179,7 @@ class Model {
         this._platformManagers = [];
         this._gameOver = [];
 
-        for (let i = 0; i < 10; i++) {
+        for (let i = 0; i < this.canvasesNumber; i++) {
             this._players.push(new Player());
             this._scoreManagers.push(new ScoreManager(i));
             this._platformManagers.push(new PlatformManager(0));

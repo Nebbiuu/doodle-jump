@@ -23,7 +23,7 @@ class ScoreManager {
     displayFinalScore() {
         document.getElementById(`final-score_${this.playerIndex}`).innerText = `Final Score: ${Math.floor(this._score)}`;
         document.getElementById(`final-score_${this.playerIndex}`).style.display = 'block';
-       document.getElementById(`score_${this.playerIndex}`).style.display = 'none';
+        document.getElementById(`score_${this.playerIndex}`).style.display = 'none';
     }
 
     hideFinalScore() {

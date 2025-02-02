@@ -5,8 +5,10 @@ class Controller {
         this._aiControllers = [];
         this._useAI = true;
         this._running = true;
+        this.canvasesNumber = 10;
 
-        for (let i = 0; i < 10; i++) {
+
+        for (let i = 0; i < this.canvasesNumber; i++) {
             this._aiControllers.push(new AIController(model, i)); // Pass the player index
         }
 
@@ -16,10 +18,33 @@ class Controller {
         this._frameDuration = 1000 / this._fps; // Avec 60 frame par seconde, la frame va durer 16.7ms.
 
         this._model.BindDisplay(this.Display.bind(this));
-        this._view.BindSetDirection(this.SetDirection.bind(this));
+        this._view.BindSetDirections(this.SetDirection.bind(this));
 
-        document.getElementById('stop-button').addEventListener('click', this.stopAndShowBestWeights.bind(this));
-        document.getElementById('copy-button').addEventListener('click', this.copyToClipboard.bind(this));
+
+        const filename = window.location.pathname.split('/').pop();
+        if (filename == 'solo.html') {
+            this.canvasesNumber = 1;
+            document.getElementById('restart-button').addEventListener('click', () => {
+                this.Restart();
+            });
+            
+            document.getElementById('manual-button').addEventListener('click', () => {
+                this.toggleAI(false);
+            });
+            
+            document.getElementById('ai-button').addEventListener('click', () => {
+                this.toggleAI(true);
+            });
+        } else {
+            document.getElementById('stop-button').addEventListener('click', this.stopAndShowBestWeights.bind(this));
+            document.getElementById('copy-button').addEventListener('click', this.copyToClipboard.bind(this));
+            
+        }
+    }
+
+    toggleAI(bool) {
+        this._useAI = bool;
+        this.Restart();
     }
 
     Display(positions, directions, platforms, scores, gameOver, vectors) {
@@ -27,8 +52,10 @@ class Controller {
     }
 
     SetDirection(newDirections) {
+        let newDirectionArray = [];
+        newDirectionArray.push(newDirections);
         if (!this._useAI) {
-            this._model.directions = newDirections;
+            this._model.directions = (newDirectionArray);
         }
     }
 
@@ -43,6 +70,7 @@ class Controller {
 
         while (this._lag >= this._frameDuration) {
             if (this._useAI) {
+                
                 const actions = this._aiControllers.map(aiController => aiController.getAction());
                 this._model.directions = actions; // Apply AI actions to player directions
             }
@@ -55,7 +83,6 @@ class Controller {
             const finalScores = this._model.getFinalScores();
             const top3Players = this._model.getTop3Players(finalScores);
 
-            console.log(top3Players);
             if (top3Players[0].score === 0) {
                 this.Restart();
             } else {
@@ -71,7 +98,7 @@ class Controller {
         this._model._scoreManagers.forEach(scoreManager => scoreManager.hideFinalScore());
         this._model = new Model();
         this._aiControllers = [];
-        for (let i = 0; i < 10; i++) {
+        for (let i = 0; i < this.canvasesNumber; i++) {
             this._aiControllers.push(new AIController(this._model, i)); // Pass the player index
         }
         this._model.BindDisplay(this.Display.bind(this));
@@ -95,5 +122,9 @@ class Controller {
         const textarea = document.getElementById('weights-textarea');
         textarea.select();
         document.execCommand('copy');
+    }
+
+    toggleAi() {
+        this._useAI = !this._useAI;
     }
 }
