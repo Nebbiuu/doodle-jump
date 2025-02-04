@@ -123,7 +123,6 @@ class Model {
   }
 
   _endGame(index) {
-    // console.log(`Game Over for player ${index}`);
     this._platformManagers[index].platforms = [];
     this._gameOver[index] = true;
     this._scoreManagers[index].displayFinalScore();

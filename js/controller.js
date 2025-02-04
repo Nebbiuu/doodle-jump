@@ -14,7 +14,6 @@ class Controller {
 
     const filename = window.location.pathname.split("/").pop();
     if (filename == "solo.html") {
-        console.log("gog");
       this.canvasesNumber = 1;
       document
         .getElementById("restart-button")
