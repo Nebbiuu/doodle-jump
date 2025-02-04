@@ -93,10 +93,11 @@ class Controller {
 
     if (this._model.allPlayersFinished()) {
       const finalScores = this._model.getFinalScores();
-      const top30PercentPlayers =
-      this._model.getTop30PercentPlayers(finalScores);
+      const top30PercentPlayers = this._model.getTop30PercentPlayers(finalScores);
       this.bestScores.push(top30PercentPlayers);
-      this._view.addScoresToChart(top30PercentPlayers);
+      if (this.canvasesNumber > 1) {
+        this._view.addScoresToChart(top30PercentPlayers);
+      }
 
       if (top30PercentPlayers[0].score === 0) {
         this.Restart();
