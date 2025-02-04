@@ -39,8 +39,9 @@ class Controller {
     }
 
     this._model.BindDisplay(this.Display.bind(this));
-    this._view.BindSetDirections(this.SetDirection.bind(this));
     this._model.BindGetCanvasesNumber(this.getCanvasesNumber.bind(this));
+    this._model.BindGetUseAI(this.getUseAI.bind(this));
+    this._view.BindSetDirections(this.SetDirection.bind(this));
     this._view.BindGetCanvasesNumber(this.getCanvasesNumber.bind(this));
     this._model.initializeGameEntities();
     this._view.initializeCanvases();
@@ -49,12 +50,11 @@ class Controller {
   getCanvasesNumber() {
     return this.canvasesNumber;
   }
-  SetUseAi(bool) {
-    this._model._useAI = bool;
+  getUseAI() {
+    return this._useAI;
   }
   toggleAI(bool) {
     this._useAI = bool;
-    this._model._useAI = bool;
     this.Restart();
   }
 
@@ -113,9 +113,9 @@ class Controller {
       scoreManager.hideFinalScore()
     );
     this._model = new Model();
-    this._model._useAI = this._useAI;
     this._model.BindDisplay(this.Display.bind(this));
     this._model.BindGetCanvasesNumber(this.getCanvasesNumber.bind(this));
+    this._model.BindGetUseAI(this.getUseAI.bind(this));
     this._model.initializeGameEntities();
     this.Update();
   }

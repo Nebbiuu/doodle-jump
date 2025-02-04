@@ -7,10 +7,12 @@ class Model {
     this.directions = [];
     this.scoreMax = 2000;
     this._aiControllers = [];
-    this._useAI = true;
   }
   BindGetCanvasesNumber(callback) {
     this.b_getCanvasesNumber = callback;
+  }
+  BindGetUseAI(callback) {
+    this.b_getUseAI = callback;
   }
   get positions() {
     return this._players.map((player) => player.position);
@@ -30,7 +32,7 @@ class Model {
   }
 
   Move(fps) {
-    if (this._useAI) {
+    if (this.b_getUseAI()) {
       const actions = this._aiControllers.map((aiController) =>
         aiController.getAction()
       );
@@ -116,12 +118,10 @@ class Model {
       this.scores,
       this._gameOver,
       inputVectors,
-      this._useAI
+      this.b_getUseAI
     );
   }
-  get useAI() {
-    return this._useAI;
-  }
+
   _endGame(index) {
     // console.log(`Game Over for player ${index}`);
     this._platformManagers[index].platforms = [];
