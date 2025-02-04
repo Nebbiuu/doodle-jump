@@ -105,6 +105,10 @@ class Model {
             i
           ].platforms.filter((platform) => platform.type !== 4);
         }
+
+        if (this._scoreManagers[i]._score >= this.scoreMax) {
+          this._scoreManagers[i]._score = this.scoreMax;
+        }
       }
     }
 
