@@ -4,8 +4,8 @@ class Controller {
     this._view = view;
     this._useAI = true;
     this._running = true;
-    this.canvasesNumber = 10;
     this.bestScores = [];
+    this.canvasesNumber = 30;
 
     this._startTime = Date.now();
     this._lag = 0;
@@ -14,10 +14,14 @@ class Controller {
 
     this._model.BindDisplay(this.Display.bind(this));
     this._view.BindSetDirections(this.SetDirection.bind(this));
+    this._model.BindGetCanvasesNumber(this.getCanvasesNumber.bind(this));
+    this._view.BindGetCanvasesNumber(this.getCanvasesNumber.bind(this));
+    this._model.initializeGameEntities();
+    this._view.initializeCanvases();
 
     const filename = window.location.pathname.split("/").pop();
     if (filename == "solo.html") {
-      this.canvasesNumber = 1;
+        this.canvasesNumber = 1;
       document
         .getElementById("restart-button")
         .addEventListener("click", () => {
@@ -40,7 +44,9 @@ class Controller {
         .addEventListener("click", this.copyToClipboard.bind(this));
     }
   }
-
+  getCanvasesNumber() {
+    return this.canvasesNumber;
+  }
   toggleAI(bool) {
     this._useAI = bool;
     this._model._useAI = bool;
@@ -83,12 +89,13 @@ class Controller {
 
     if (this._model.allPlayersFinished()) {
       const finalScores = this._model.getFinalScores();
-      const top3Players = this._model.getTop3Players(finalScores);
-      this.bestScores.push(top3Players);
-      if (top3Players[0].score === 0) {
+      const top30PercentPlayers =
+        this._model.getTop30PercentPlayers(finalScores);
+      this.bestScores.push(top30PercentPlayers);
+      if (top30PercentPlayers[0].score === 0) {
         this.Restart();
       } else {
-        this._model.generateNewPopulation(top3Players);
+        this._model.generateNewPopulation(top30PercentPlayers);
         this.Restart();
       }
     } else {
@@ -102,6 +109,8 @@ class Controller {
     );
     this._model = new Model();
     this._model.BindDisplay(this.Display.bind(this));
+    this._model.BindGetCanvasesNumber(this.getCanvasesNumber.bind(this));
+    this._model.initializeGameEntities();
     this.Update();
   }
 
@@ -117,6 +126,7 @@ class Controller {
     document.getElementById("weights-textarea").value = weightsText;
     document.getElementById("best-weights").classList.remove("hidden");
   }
+
   addScoresToChart(top3Players) {
     if (!top3Players || top3Players.length < 3) return;
 
@@ -134,6 +144,7 @@ class Controller {
     // Mettre à jour le graphique
     scoreChart.update();
   }
+
   copyToClipboard() {
     const textarea = document.getElementById("weights-textarea");
     textarea.select();

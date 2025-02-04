@@ -6,17 +6,13 @@ class Model {
     this._gameOver = [];
     this.directions = [];
     this.scoreMax = 2000;
-    this.canvasesNumber = 10;
     this._aiControllers = [];
     this._useAI = true;
 
-    const filename = window.location.pathname.split("/").pop();
-    if (filename == "solo.html") {
-      this.canvasesNumber = 1;
-    }
-    this.initializeGameEntities();
   }
-
+  BindGetCanvasesNumber(callback) {
+    this.b_getCanvasesNumber = callback;
+  }
   get positions() {
     return this._players.map((player) => player.position);
   }
@@ -42,7 +38,7 @@ class Model {
       this.directions = actions;
     }
 
-    for (let i = 0; i < this.canvasesNumber; i++) {
+    for (let i = 0; i < this.b_getCanvasesNumber(); i++) {
       this._players[i].move(fps);
       this._platformManagers[i].movePlatforms(fps);
       CollisionManager.checkPlayerPlatformCollision(
@@ -160,13 +156,13 @@ class Model {
       .sort((a, b) => b.score - a.score);
   }
 
-  getTop3Players(finalScores) {
-    console.log(finalScores.slice(0, 3));
-    return finalScores.slice(0, 3);
+  getTop30PercentPlayers(finalScores) {
+    const top30PercentCount = Math.ceil(this.b_getCanvasesNumber() * 0.3);
+    return finalScores.slice(0, top30PercentCount);
   }
 
   initializeGameEntities() {
-    for (let i = 0; i < this.canvasesNumber; i++) {
+    for (let i = 0; i < this.b_getCanvasesNumber(); i++) {
       this._players.push(new Player());
       this._scoreManagers.push(new ScoreManager(i));
       this._platformManagers.push(new PlatformManager(0));
@@ -174,37 +170,30 @@ class Model {
       this._aiControllers.push(new AIController(this, i));
     }
   }
+  generateNewPopulation(topPlayers) {
+    const topPlayersCount = topPlayers.length;
 
-  generateNewPopulation(top3Players) {
-    this._players = [];
-    this._scoreManagers = [];
-    this._platformManagers = [];
-    this._gameOver = [];
-    this._aiControllers = [];
-
-    this.initializeGameEntities();
-
-    for (let i = 0; i < 3; i++) {
-      this._aiControllers[i].weights1 = top3Players[i].weights1;
-      this._aiControllers[i].weights2 = top3Players[i].weights2;
+    for (let i = 0; i < topPlayersCount; i++) {
+      this._aiControllers[i].weights1 = topPlayers[i].weights1;
+      this._aiControllers[i].weights2 = topPlayers[i].weights2;
     }
 
-    for (let i = 0; i < 7; i++) {
-      const parent = top3Players[i % 3];
-      this._aiControllers[i + 3].weights1 = this.mutateWeights(parent.weights1);
-      this._aiControllers[i + 3].weights2 = this.mutateWeights(parent.weights2);
+    for (let i = topPlayersCount; i < this.b_getCanvasesNumber(); i++) {
+      const parent = topPlayers[Math.floor(Math.random() * topPlayersCount)];
+
+      const mutatedWeights1 = this.mutateWeights(parent.weights1);
+      const mutatedWeights2 = this.mutateWeights(parent.weights2);
+
+      this._aiControllers[i].weights1 = mutatedWeights1;
+      this._aiControllers[i].weights2 = mutatedWeights2;
     }
   }
-
   mutateWeights(weights) {
     const mutationRate = 0.1;
-    return weights.map((row) =>
-      row.map((weight) => {
-        if (Math.random() < mutationRate) {
-          return weight + (Math.random() * 2 - 1) * 0.1;
-        }
-        return weight;
-      })
+    return weights.map(layer =>
+      layer.map(weight =>
+        Math.random() < mutationRate ? weight + (Math.random() - 0.5) * 0.1 : weight
+      )
     );
   }
 }
