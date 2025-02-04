@@ -8,7 +8,6 @@ class Model {
     this.scoreMax = 2000;
     this._aiControllers = [];
     this._useAI = true;
-
   }
   BindGetCanvasesNumber(callback) {
     this.b_getCanvasesNumber = callback;
@@ -120,7 +119,9 @@ class Model {
       this._useAI
     );
   }
-
+  get useAI() {
+    return this._useAI;
+  }
   _endGame(index) {
     // console.log(`Game Over for player ${index}`);
     this._platformManagers[index].platforms = [];
@@ -190,9 +191,11 @@ class Model {
   }
   mutateWeights(weights) {
     const mutationRate = 0.1;
-    return weights.map(layer =>
-      layer.map(weight =>
-        Math.random() < mutationRate ? weight + (Math.random() - 0.5) * 0.1 : weight
+    return weights.map((layer) =>
+      layer.map((weight) =>
+        Math.random() < mutationRate
+          ? weight + (Math.random() - 0.5) * 0.1
+          : weight
       )
     );
   }

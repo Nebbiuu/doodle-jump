@@ -12,7 +12,6 @@ class View {
     this.doodlerRight.src = "/img/lik-right@2x.png";
 
     this.tileManager = new TileManager();
-
     
     this.Events();
   }
@@ -24,7 +23,7 @@ class View {
   initializeCanvases() {
     const gamesContainer = document.getElementById("games-container");
     gamesContainer.innerHTML = ""; // Clear any existing canvases
-
+    console.log(this.b_getCanvasesNumber());
     for (let i = 0; i < this.b_getCanvasesNumber(); i++) {
       const canvasContainer = document.createElement("div");
       canvasContainer.className = "canvas-container";

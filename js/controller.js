@@ -12,16 +12,10 @@ class Controller {
     this._fps = 60; // Frame rate.
     this._frameDuration = 1000 / this._fps; // Avec 60 frame par seconde, la frame va durer 16.7ms.
 
-    this._model.BindDisplay(this.Display.bind(this));
-    this._view.BindSetDirections(this.SetDirection.bind(this));
-    this._model.BindGetCanvasesNumber(this.getCanvasesNumber.bind(this));
-    this._view.BindGetCanvasesNumber(this.getCanvasesNumber.bind(this));
-    this._model.initializeGameEntities();
-    this._view.initializeCanvases();
-
     const filename = window.location.pathname.split("/").pop();
     if (filename == "solo.html") {
-        this.canvasesNumber = 1;
+        console.log("gog");
+      this.canvasesNumber = 1;
       document
         .getElementById("restart-button")
         .addEventListener("click", () => {
@@ -43,9 +37,20 @@ class Controller {
         .getElementById("copy-button")
         .addEventListener("click", this.copyToClipboard.bind(this));
     }
+
+    this._model.BindDisplay(this.Display.bind(this));
+    this._view.BindSetDirections(this.SetDirection.bind(this));
+    this._model.BindGetCanvasesNumber(this.getCanvasesNumber.bind(this));
+    this._view.BindGetCanvasesNumber(this.getCanvasesNumber.bind(this));
+    this._model.initializeGameEntities();
+    this._view.initializeCanvases();
+
   }
   getCanvasesNumber() {
     return this.canvasesNumber;
+  }
+  SetUseAi(bool) {
+    this._model._useAI = bool;
   }
   toggleAI(bool) {
     this._useAI = bool;
@@ -108,6 +113,7 @@ class Controller {
       scoreManager.hideFinalScore()
     );
     this._model = new Model();
+    this._model._useAI = this._useAI;
     this._model.BindDisplay(this.Display.bind(this));
     this._model.BindGetCanvasesNumber(this.getCanvasesNumber.bind(this));
     this._model.initializeGameEntities();
