@@ -123,7 +123,7 @@ class PlatformManager {
         let screenWidth = 600; // Largeur de l'écran (ajuste si besoin)
         let numPlatforms = Math.ceil(screenWidth / gap); // S'assurer de couvrir toute la largeur
     
-        let finalY = playerY - 500; // Décaler vers le bas pour l'effet smooth
+        let finalY = playerY - 200; // Décaler vers le bas pour l'effet smooth
     
         for (let i = 0; i < numPlatforms; i++) {
             endingPlatforms.push({

@@ -2,15 +2,9 @@ class Controller {
     constructor(model, view) {
         this._model = model;
         this._view = view;
-        this._aiControllers = [];
         this._useAI = true;
         this._running = true;
         this.canvasesNumber = 10;
-
-
-        for (let i = 0; i < this.canvasesNumber; i++) {
-            this._aiControllers.push(new AIController(model, i)); // Pass the player index
-        }
 
         this._startTime = Date.now();
         this._lag = 0;
@@ -44,6 +38,7 @@ class Controller {
 
     toggleAI(bool) {
         this._useAI = bool;
+        this._model._useAI = bool;
         this.Restart();
     }
 
@@ -69,12 +64,6 @@ class Controller {
         this._startTime = currentTime;
 
         while (this._lag >= this._frameDuration) {
-            if (this._useAI) {
-                
-                const actions = this._aiControllers.map(aiController => aiController.getAction());
-                this._model.directions = actions; // Apply AI actions to player directions
-            }
-
             this._model.Move(this._fps);
             this._lag -= this._frameDuration;
         }
@@ -97,10 +86,6 @@ class Controller {
     Restart() {
         this._model._scoreManagers.forEach(scoreManager => scoreManager.hideFinalScore());
         this._model = new Model();
-        this._aiControllers = [];
-        for (let i = 0; i < this.canvasesNumber; i++) {
-            this._aiControllers.push(new AIController(this._model, i)); // Pass the player index
-        }
         this._model.BindDisplay(this.Display.bind(this));
         this.Update();
     }

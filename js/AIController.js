@@ -2,15 +2,43 @@ class AIController {
     constructor(model, playerIndex) {
         this._model = model;
         this.playerIndex = playerIndex; // Store the player index
-        this.weights1 = this._model.initializeWeights(6, 4);
-        this.weights2 = this._model.initializeWeights(4, 3);
+        this.weights1 = this.initializeWeights(6, 4);
+        this.weights2 = this.initializeWeights(4, 3);
         this.previousScore = 0;
         this.stagnantMoves = 0;
         this.maxStagnantMoves = 250;
     }
 
+    initializeWeights(inputSize, outputSize) {
+        const weights = [];
+        for (let i = 0; i < outputSize; i++) {
+            const row = [];
+            for (let j = 0; j < inputSize; j++) {
+                row.push(Math.random() * 2 - 1);
+            }
+            weights.push(row);
+        }
+        return weights;
+    }
+
+    getNormalizedInputs(playerIndex) {
+        const player = this._model._players[playerIndex];
+        const vectors = this._model.getInputVectors()[playerIndex];
+        const magnitudes = vectors.map(vector => vector.magnitude);
+        const maxMagnitude = Math.max(...magnitudes);
+        const normalizedMagnitudes = magnitudes.map(magnitude => this.normalize(magnitude, maxMagnitude));
+        const normalizedX = this.normalize(player.position.x, 400);
+        const normalizedY = this.normalize(player.position.y, 600);
+
+        return [...normalizedMagnitudes, normalizedX, normalizedY];
+    }
+
+    normalize(value, max) {
+        return value / max;
+    }
+
     getAction() {
-        const normalizedInputs = this._model.getNormalizedInputs(this.playerIndex);
+        const normalizedInputs = this.getNormalizedInputs(this.playerIndex);
 
         const neuronOutputs = this.calculateNeuronOutputs(normalizedInputs);
 
@@ -22,7 +50,7 @@ class AIController {
         const actionIndex = probabilities.indexOf(maxProbability);
 
 
-        const currentScore = Math.floor(this._model.scores[this.playerIndex]); // Round the score
+        const currentScore = Math.floor(this._model.scores[this.playerIndex]);
         
         if (currentScore <= this.previousScore) {
             this.stagnantMoves++;
