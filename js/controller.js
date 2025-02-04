@@ -95,8 +95,10 @@ class Controller {
     if (this._model.allPlayersFinished()) {
       const finalScores = this._model.getFinalScores();
       const top30PercentPlayers =
-        this._model.getTop30PercentPlayers(finalScores);
+      this._model.getTop30PercentPlayers(finalScores);
       this.bestScores.push(top30PercentPlayers);
+      this._view.addScoresToChart(top30PercentPlayers);
+
       if (top30PercentPlayers[0].score === 0) {
         this.Restart();
       } else {
@@ -131,24 +133,6 @@ class Controller {
     const weightsText = JSON.stringify(weights, null, 2);
     document.getElementById("weights-textarea").value = weightsText;
     document.getElementById("best-weights").classList.remove("hidden");
-  }
-
-  addScoresToChart(top3Players) {
-    if (!top3Players || top3Players.length < 3) return;
-
-    // Calcul de la moyenne des 3 meilleurs scores
-    let averageScore =
-      (top3Players[0].score + top3Players[1].score + top3Players[2].score) / 3;
-
-    // Ajouter une nouvelle génération au label (ex: "Gen 1", "Gen 2", etc.)
-    let generationNumber = scoreChart.data.labels.length + 1;
-    scoreChart.data.labels.push("Gen " + generationNumber);
-
-    // Ajouter la moyenne au dataset unique
-    scoreChart.data.datasets[0].data.push(averageScore);
-
-    // Mettre à jour le graphique
-    scoreChart.update();
   }
 
   copyToClipboard() {

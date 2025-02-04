@@ -5,7 +5,7 @@ class Model {
     this._platformManagers = [];
     this._gameOver = [];
     this.directions = [];
-    this.scoreMax = 2000;
+    this.scoreMax = 12000;
     this._aiControllers = [];
   }
   BindGetCanvasesNumber(callback) {

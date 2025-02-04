@@ -29,51 +29,8 @@
     <script src="js/controller.js"></script>
     <script src="js/main.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-      // Données des meilleurs scores (exemple initial)
-      let bestScoresHistory = [];
+    <script src="js/chart.js"></script>
+    
 
-      // Référence au graphique Chart.js
-      let ctx = document.getElementById("scoreChart").getContext("2d");
-      const scoreChart = new Chart(ctx, {
-        type: "line",
-        data: {
-          labels: [], // Étiquettes des générations
-          datasets: [
-            {
-              label: "Score Moyen des 3 Meilleurs",
-              data: [],
-              borderColor: "red",
-              fill: false,
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          scales: {
-            y: { beginAtZero: true },
-          },
-        },
-      });
-
-      // Fonction pour ajouter une nouvelle génération de scores
-      function addNewBestScores(newBestScores) {
-        if (!Array.isArray(newBestScores) || newBestScores.length !== 3) return;
-
-        // Ajout des scores à l'historique
-        bestScoresHistory.push(newBestScores.map((bot) => bot.score));
-
-        // Mise à jour des labels (numéro de génération)
-        scoreChart.data.labels.push(bestScoresHistory.length);
-
-        // Mise à jour des données des courbes
-        for (let i = 0; i < 3; i++) {
-          scoreChart.data.datasets[i].data.push(newBestScores[i].score);
-        }
-
-        // Rafraîchir le graphique
-        scoreChart.update();
-      }
-    </script>
   </body>
 </html>

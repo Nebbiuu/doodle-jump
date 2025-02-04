@@ -148,4 +148,19 @@ class View {
       ctx.stroke();
     });
   }
+  addScoresToChart(top30PercentPlayers) {
+
+    if (!top30PercentPlayers || top30PercentPlayers.length === 0) return;
+
+    let totalScore = top30PercentPlayers.reduce((sum, player) => sum + player.score, 0);
+    let averageScore = totalScore / top30PercentPlayers.length;
+
+    let generationNumber = scoreChart.data.labels.length + 1;
+    scoreChart.data.labels.push("Gen " + generationNumber);
+
+    scoreChart.data.datasets[0].data.push(averageScore);
+
+    scoreChart.update();
+}
+
 }
