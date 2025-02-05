@@ -38,12 +38,12 @@ class PlatformManager {
     _getPlatformProbabilities(score) {
         if (score <= 5000) {
             return { normal: 0.80, moving: 0.15, disappearing: 0.05 };
-        } else if (score <= 10000) {
+        } else if (score <= 7500) {
             return { normal: 0.70, moving: 0.20, disappearing: 0.10 };
-        } else if (score <= 15000) {
-            return { normal: 0.60, moving: 0.25, disappearing: 0.10, };
+        } else if (score <= 1000) {
+            return { normal: 0.60, moving: 0.25, disappearing: 0.15, };
         } else {
-            return { normal: 0.50, moving: 0.30, disappearing: 0.15 };
+            return { normal: 0.50, moving: 0.30, disappearing: 0.20 };
         }
     }
 
