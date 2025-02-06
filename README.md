@@ -6,3 +6,6 @@ Améliorations de l'algorithme génétique depuis la présentation orale :
 
 3. Ajout d'une mutation aléatoire :
    Chaque nouvel individu a désormais 5 % de chance de subir une mutation aléatoire de ses poids, contrairement à l’ancienne version où tous les enfants étaient issus uniquement de mutations. Cela permet de maintenir une exploration minimale.
+
+
+Pour lancer le jeu, il n'y a rien de particulier, il suffit d'avoir l'extension Live Server et de faire Go Live.
