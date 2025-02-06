@@ -170,6 +170,7 @@ class Model {
       this._aiControllers.push(new AIController(this, i));
     }
   }
+  
   generateNewPopulation(topPlayers) {
     const topPlayersCount = topPlayers.length;
 
@@ -179,15 +180,34 @@ class Model {
     }
 
     for (let i = topPlayersCount; i < this.b_getCanvasesNumber(); i++) {
-      const parent = topPlayers[Math.floor(Math.random() * topPlayersCount)];
-
-      const mutatedWeights1 = this.mutateWeights(parent.weights1);
-      const mutatedWeights2 = this.mutateWeights(parent.weights2);
-
+      const parent1 = topPlayers[Math.floor(Math.random() * topPlayersCount)];
+      const parent2 = topPlayers[Math.floor(Math.random() * topPlayersCount)];
+  
+      const childWeights1 = this.averageWeights(parent1.weights1, parent2.weights1);
+      const childWeights2 = this.averageWeights(parent1.weights2, parent2.weights2);
+  
+      const mutatedWeights1 = this.mutateWeightsWithProbability(childWeights1);
+      const mutatedWeights2 = this.mutateWeightsWithProbability(childWeights2);
+  
       this._aiControllers[i].weights1 = mutatedWeights1;
       this._aiControllers[i].weights2 = mutatedWeights2;
     }
   }
+  
+  mutateWeightsWithProbability(weights) {
+    const mutationProbability = 0.05;
+    if (Math.random() < mutationProbability) {
+      return this.mutateWeights(weights);
+    }
+    return weights;
+  }
+
+  averageWeights(weights1, weights2) {
+    return weights1.map((layer, i) =>
+      layer.map((weight, j) => (weight + weights2[i][j]) / 2)
+    );
+  }
+
   mutateWeights(weights) {
     const mutationRate = 0.1;
     return weights.map((layer) =>

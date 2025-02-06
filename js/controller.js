@@ -98,7 +98,6 @@ class Controller {
       if (this.canvasesNumber > 1) {
         this._view.addScoresToChart(top30PercentPlayers);
       }
-
       if (top30PercentPlayers[0].score === 0) {
         this.Restart();
       } else {
